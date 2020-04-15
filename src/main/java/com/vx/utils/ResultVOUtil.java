@@ -49,4 +49,12 @@ public class ResultVOUtil {
         return resultVO;
     }
 
+    public static ResultVO error(Object object) {
+        ResultVO resultVO = new ResultVO();
+        resultVO.setCode(400);
+        resultVO.setMsg("错误");
+        resultVO.setData(object);
+        return resultVO;
+    }
+
 }

@@ -1,6 +1,8 @@
 package com.vx.service.impl;
 
+import com.vx.dao.UserMapper;
 import com.vx.form.CodeForm;
+import com.vx.model.User;
 import com.vx.model.VxSessionModel;
 import com.vx.service.AnonService;
 import com.vx.utils.*;
@@ -29,15 +31,18 @@ public class AnonServiceImpl implements AnonService {
     @Autowired
     private RedisUtil redisUtil;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @Transactional
     @Override
-    public ResultVO vxLogin(CodeForm code,BindingResult bindingResult) {
-        if(bindingResult.hasErrors()){
+    public ResultVO vxLogin(CodeForm code, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
             log.info("参数注意必填项！");
             return ResultVOUtil.error(bindingResult.getFieldError().getDefaultMessage());
         }
 
-        log.info("vx-login-code: "+ code.getCode());
+        log.info("vx-login-code: " + code.getCode());
         //https://api.weixin.qq.com/sns/jscode2session?appid=APPID&secret=SECRET&js_code=JSCODE&grant_type=authorization_code
         String url = "https://api.weixin.qq.com/sns/jscode2session";
         Map<String, String> param = new HashMap<>();
@@ -46,35 +51,53 @@ public class AnonServiceImpl implements AnonService {
         param.put("js_code", code.getCode());
         param.put("grant_type", "authorization_code");
 
-        String vxResult = HttpClientUtil.doGet(url,param);
+        String vxResult = HttpClientUtil.doGet(url, param);
 
-        VxSessionModel model = JsonUtils.jsonToPojo(vxResult,VxSessionModel.class);
+        VxSessionModel model = JsonUtils.jsonToPojo(vxResult, VxSessionModel.class);
 
         //重新登录覆盖redis中的数据
         assert model != null;
 
+        if (!isExistOpenid(model.getOpenid())) {
+            User user = new User();
+            user.setOpenid(model.getOpenid());
+            user.setMaxNum(5);
+            user.setCreateTime(DateUtil.getNowDate());
+            user.setModifyTime(DateUtil.getNowDate());
+            userMapper.insert(user);
+        }
         //将session存入redis
-            redisUtil.set(model.getOpenid(),model.getSession_key(),60*60*24*3);
+        redisUtil.set(model.getOpenid(), model.getSession_key(), 60 * 60 * 24 * 3);
 
         //返回md5加密后的openid
         return ResultVOUtil.success(MD5Util.string2MD5(model.getOpenid()));
     }
-    @RabbitListener(bindings = {
-            @QueueBinding(
-                    value = @Queue,//创建临时队列
-                    exchange = @Exchange(value = "test",type = "fanout")
-            )
-    })
-    public void receive1(CodeForm message){
-        System.out.println("message1 = "+message.toString());
+
+    public boolean isExistOpenid(String openid) {
+        if (userMapper.selectByOpenid(openid) == null) {
+            return false;
+        }
+        return true;
     }
+
+
     @RabbitListener(bindings = {
             @QueueBinding(
                     value = @Queue,//创建临时队列
-                    exchange = @Exchange(value = "test",type = "fanout")
+                    exchange = @Exchange(value = "test", type = "fanout")
             )
     })
-    public void receive2(CodeForm message){
-        System.out.println("message2 = "+message.toString());
+    public void receive1(CodeForm message) {
+        System.out.println("message1 = " + message.toString());
+    }
+
+    @RabbitListener(bindings = {
+            @QueueBinding(
+                    value = @Queue,//创建临时队列
+                    exchange = @Exchange(value = "test", type = "fanout")
+            )
+    })
+    public void receive2(CodeForm message) {
+        System.out.println("message2 = " + message.toString());
     }
 }

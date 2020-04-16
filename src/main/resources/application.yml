@@ -14,7 +14,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 123456
-    url: jdbc:mysql://106.15.248.34:3306/uchain?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=CONVERT_TO_NULL
+    url: jdbc:mysql://127.0.0.1:3306/vxxcx?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=CONVERT_TO_NULL
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       # 初始化大小，最小，最大
@@ -39,3 +39,9 @@ spring:
         max-idle: 10  # 连接池中的最大空闲连接
         min-idle: 0 # 连接池中的最小空闲连接
     timeout: 1000 # 连接超时时间（毫秒）
+mybatis:
+  mapper-locations: classpath:mappers/*.xml
+  type-aliases-package: com.vx.model
+  configuration:
+    map-underscore-to-camel-case: true
+    use-generated-keys: true

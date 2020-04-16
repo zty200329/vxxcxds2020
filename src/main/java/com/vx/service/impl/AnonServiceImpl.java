@@ -1,6 +1,7 @@
 package com.vx.service.impl;
 
 import com.vx.dao.UserMapper;
+import com.vx.exception.VxxcxException;
 import com.vx.form.CodeForm;
 import com.vx.model.User;
 import com.vx.model.VxSessionModel;
@@ -12,6 +13,7 @@ import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +32,8 @@ import java.util.Map;
 public class AnonServiceImpl implements AnonService {
     @Autowired
     private RedisUtil redisUtil;
-
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
     @Autowired
     private UserMapper userMapper;
 
@@ -39,6 +42,7 @@ public class AnonServiceImpl implements AnonService {
     public ResultVO vxLogin(CodeForm code, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             log.info("参数注意必填项！");
+//            throw new VxxcxException(400,bindingResult.getFieldError().getDefaultMessage());
             return ResultVOUtil.error(bindingResult.getFieldError().getDefaultMessage());
         }
 
@@ -61,10 +65,12 @@ public class AnonServiceImpl implements AnonService {
         if (!isExistOpenid(model.getOpenid())) {
             User user = new User();
             user.setOpenid(model.getOpenid());
+            user.setNowNum(0);
             user.setMaxNum(5);
             user.setCreateTime(DateUtil.getNowDate());
             user.setModifyTime(DateUtil.getNowDate());
-            userMapper.insert(user);
+            //fanout 广播
+            rabbitTemplate.convertAndSend("userInsert","",user);
         }
         //将session存入redis
         redisUtil.set(model.getOpenid(), model.getSession_key(), 60 * 60 * 24 * 3);
@@ -79,25 +85,17 @@ public class AnonServiceImpl implements AnonService {
         }
         return true;
     }
-
-
     @RabbitListener(bindings = {
             @QueueBinding(
                     value = @Queue,//创建临时队列
-                    exchange = @Exchange(value = "test", type = "fanout")
+                    exchange = @Exchange(value = "userInsert", type = "fanout")
             )
     })
-    public void receive1(CodeForm message) {
-        System.out.println("message1 = " + message.toString());
+    public void insertUser(User user){
+        userMapper.insert(user);
+        log.info("插入新用户");
     }
 
-    @RabbitListener(bindings = {
-            @QueueBinding(
-                    value = @Queue,//创建临时队列
-                    exchange = @Exchange(value = "test", type = "fanout")
-            )
-    })
-    public void receive2(CodeForm message) {
-        System.out.println("message2 = " + message.toString());
-    }
+
+
 }

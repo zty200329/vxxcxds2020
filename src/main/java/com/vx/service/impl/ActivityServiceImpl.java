@@ -1,11 +1,16 @@
 package com.vx.service.impl;
 
+import com.vx.dao.ActivityMapper;
+import com.vx.dao.OperationMapper;
 import com.vx.enums.ResultEnum;
 import com.vx.form.ActivityForm;
+import com.vx.form.SonActivityForm;
 import com.vx.model.Activity;
+import com.vx.model.Operation;
 import com.vx.service.ActivityService;
 import com.vx.utils.RedisUtil;
 import com.vx.utils.ResultVOUtil;
+import com.vx.utils.UploadImageUtil;
 import com.vx.vo.ResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -13,6 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import static com.vx.utils.MD5Util.convertMD5;
 
@@ -28,19 +37,45 @@ public class ActivityServiceImpl implements ActivityService {
     @Autowired
     private RedisUtil redisUtil;
 
+    @Autowired
+    private OperationMapper operationMapper;
+    @Autowired
+    private ActivityMapper activityMapper;
+
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public ResultVO addActivity(ActivityForm activityForm, BindingResult bindingResult) {
+    public ResultVO addActivity(ActivityForm activityForm, MultipartFile file,BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             log.info("参数注意必填项！");
             return ResultVOUtil.error(bindingResult.getFieldError().getDefaultMessage());
         }
-        if (redisUtil.get(convertMD5(convertMD5(activityForm.getOpenIdMd5()))) == null){
+        if (redisUtil.get(convertMD5(convertMD5(activityForm.getOpenIdMd5()))) == null) {
             return ResultVOUtil.error(ResultEnum.USER_NOT_LOGIN);
         }
+        if(file.isEmpty()){
+            return ResultVOUtil.error(ResultEnum.IMAGE_IS_NULL);
+        }
         Activity activity = new Activity();
-        BeanUtils.copyProperties(activityForm,activity);
+        activity.setOpenid(convertMD5(convertMD5(activityForm.getOpenIdMd5())));
+        BeanUtils.copyProperties(activityForm, activity);
+        activity.setPictureUrl(UploadImageUtil.uploadFile(file));
+        activity.setIsTrue((byte) 1);
+        log.info(activity.toString());
+        activityMapper.insert(activity);
 
-            return null;
+        return ResultVOUtil.success();
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public ResultVO addSonActivity(List<SonActivityForm> sonActivityForms, BindingResult bindingResult) {
+        for (SonActivityForm sonActivityForm : sonActivityForms) {
+            Operation operation = new Operation();
+            BeanUtils.copyProperties(sonActivityForm,operation);
+            operationMapper.insert(operation);
+        }
+        return ResultVOUtil.success();
+    }
+
+
 }

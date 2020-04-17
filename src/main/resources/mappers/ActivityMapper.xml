@@ -22,12 +22,12 @@
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.vx.model.Activity" >
-    insert into activity_main (id, openid, activity_name, 
+    insert into activity_main ( openid, activity_name,
       phone_num, activity_type, `name`, 
       city, address, latitude, 
       longitude, activity_time, description, 
       picture_url, is_true)
-    values (#{id,jdbcType=BIGINT}, #{openid,jdbcType=VARCHAR}, #{activityName,jdbcType=VARCHAR}, 
+    values ( #{openid,jdbcType=VARCHAR}, #{activityName,jdbcType=VARCHAR},
       #{phoneNum,jdbcType=INTEGER}, #{activityType,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
       #{city,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{latitude,jdbcType=VARCHAR}, 
       #{longitude,jdbcType=VARCHAR}, #{activityTime,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 

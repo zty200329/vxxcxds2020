@@ -1,18 +1,19 @@
 package com.vx.controller;
 
 import com.vx.form.ActivityForm;
+import com.vx.form.SonActivityForm;
 import com.vx.service.ActivityService;
 import com.vx.vo.ResultVO;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author zty
@@ -30,8 +31,14 @@ public class ActivityController {
     private ActivityService activityService;
 
     @PostMapping("/addActivity")
-    public ResultVO addActivity(@Valid ActivityForm activityForm, BindingResult bindingResult){
-        return activityService.addActivity(activityForm,bindingResult);
+    @ApiOperation("创建一个大活动的主体")
+    public ResultVO addActivity(@Valid ActivityForm activityForm, @RequestParam("upload")MultipartFile file, BindingResult bindingResult){
+        return activityService.addActivity(activityForm,file,bindingResult);
     }
 
+    @PostMapping("/addSonActivity")
+    @ApiOperation("创建一个大活动的下的排队项目")
+    public ResultVO addSonActivity(@Valid List<SonActivityForm> sonActivityForms, BindingResult bindingResult){
+        return activityService.addSonActivity(sonActivityForms,bindingResult);
+    }
 }

@@ -51,7 +51,7 @@ public class ActivityForm {
     @ApiModelProperty("活动描述")
     private String description;
 
-    @NotNull(message = "图片不能为空")
-    @ApiModelProperty("图片")
-    private MultipartFile file;
+//    @NotNull(message = "图片不能为空")
+//    @ApiModelProperty("图片")
+//    private MultipartFile file;
 }

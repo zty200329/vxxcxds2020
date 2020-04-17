@@ -1,8 +1,10 @@
 package com.vx.dao;
 
 import com.vx.model.Activity;
-import java.util.List;
+import org.springframework.stereotype.Repository;
 
+import java.util.List;
+@Repository
 public interface ActivityMapper {
     int deleteByPrimaryKey(Long id);
 

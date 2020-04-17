@@ -13,10 +13,10 @@
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.vx.model.Operation" >
-    insert into operation (id, activity_id, `name`, 
-      description, is_true)
-    values (#{id,jdbcType=BIGINT}, #{activityId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{isTrue,jdbcType=TINYINT})
+    insert into operation (activity_id, `name`,
+      description)
+    values (#{activityId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR},
+      #{description,jdbcType=VARCHAR})
   </insert>
   <update id="updateByPrimaryKey" parameterType="com.vx.model.Operation" >
     update operation

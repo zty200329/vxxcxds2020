@@ -19,6 +19,9 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+/**
+ * @author zty
+ */
 public class HttpClientUtil {
 
 	public static String doGet(String url, Map<String, String> param) {

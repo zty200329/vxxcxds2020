@@ -1,8 +1,11 @@
 package com.vx.dao;
 
 import com.vx.model.Operation;
-import java.util.List;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
+import java.util.List;
+@Repository
 public interface OperationMapper {
     int deleteByPrimaryKey(Long id);
 

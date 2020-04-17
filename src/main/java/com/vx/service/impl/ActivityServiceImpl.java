@@ -2,6 +2,7 @@ package com.vx.service.impl;
 
 import com.vx.enums.ResultEnum;
 import com.vx.form.ActivityForm;
+import com.vx.model.Activity;
 import com.vx.service.ActivityService;
 import com.vx.utils.RedisUtil;
 import com.vx.utils.ResultVOUtil;

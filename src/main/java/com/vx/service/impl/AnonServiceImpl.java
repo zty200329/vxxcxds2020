@@ -37,12 +37,11 @@ public class AnonServiceImpl implements AnonService {
     @Autowired
     private UserMapper userMapper;
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public ResultVO vxLogin(CodeForm code, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             log.info("参数注意必填项！");
-//            throw new VxxcxException(400,bindingResult.getFieldError().getDefaultMessage());
             return ResultVOUtil.error(bindingResult.getFieldError().getDefaultMessage());
         }
 

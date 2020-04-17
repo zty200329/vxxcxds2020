@@ -12,6 +12,7 @@ public enum ResultEnum {
      *
      */
 
+    USER_NOT_LOGIN(1,"用户登录信息过期"),
 
     AUTHENTICATION_ERROR(401, "用户认证失败,请重新登录"),
     PERMISSION_DENNY(403, "权限不足"),

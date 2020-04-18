@@ -16,7 +16,7 @@ public class ActivityForm {
 
     @NotNull(message = "openidSession不能为空")
     @ApiModelProperty("openidSession")
-    private String openIdMd5;
+    private String openId;
 
     @NotNull(message = "排队活动名字不能为空 ")
     @ApiModelProperty("排队活动名字")
@@ -24,7 +24,7 @@ public class ActivityForm {
 
     @NotNull(message = "负责人电话号码不能为空")
     @ApiModelProperty("负责人电话号码")
-    private Integer phoneNum;
+    private String phoneNum;
 
     @NotNull(message = "活动类型不能为空")
     @ApiModelProperty("活动类型")
@@ -51,7 +51,7 @@ public class ActivityForm {
     @ApiModelProperty("活动描述")
     private String description;
 
-//    @NotNull(message = "图片不能为空")
-//    @ApiModelProperty("图片")
-//    private MultipartFile file;
+    @NotNull(message = "图片不能为空")
+    @ApiModelProperty("图片")
+    private String fileUrl;
 }

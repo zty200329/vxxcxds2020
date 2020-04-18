@@ -1,4 +1,7 @@
 spring:
+
+  resources:
+    add-mappings: false
   rabbitmq:
     host: 127.0.0.1
     port: 5672
@@ -48,3 +51,6 @@ mybatis:
 image:
   url: http//:127.0.0.1:8080
   location: /home/zty/image/
+
+server:
+  port: 8085

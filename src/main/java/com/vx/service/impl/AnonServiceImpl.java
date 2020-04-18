@@ -74,8 +74,8 @@ public class AnonServiceImpl implements AnonService {
         //将session存入redis
         redisUtil.set(model.getOpenid(), model.getSession_key(), 60 * 60 * 24 * 3);
 
-        //返回md5加密后的openid
-        return ResultVOUtil.success(MD5Util.string2MD5(model.getOpenid()));
+        //返回openid
+        return ResultVOUtil.success(model.getOpenid());
     }
 
     public boolean isExistOpenid(String openid) {

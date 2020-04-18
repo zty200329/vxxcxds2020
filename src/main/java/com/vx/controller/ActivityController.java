@@ -30,15 +30,21 @@ public class ActivityController {
     @Autowired
     private ActivityService activityService;
 
+    @PostMapping("/addPicture")
+    @ApiOperation("图片")
+    public ResultVO addPicture(MultipartFile file){
+        return activityService.addPicture(file);
+    }
+
     @PostMapping("/addActivity")
     @ApiOperation("创建一个大活动的主体")
-    public ResultVO addActivity(@Valid ActivityForm activityForm, @RequestParam("upload")MultipartFile file, BindingResult bindingResult){
-        return activityService.addActivity(activityForm,file,bindingResult);
+    public ResultVO addActivity(@Valid ActivityForm activityForm,  BindingResult bindingResult){
+        return activityService.addActivity(activityForm,bindingResult);
     }
 
     @PostMapping("/addSonActivity")
     @ApiOperation("创建一个大活动的下的排队项目")
-    public ResultVO addSonActivity(@Valid List<SonActivityForm> sonActivityForms, BindingResult bindingResult){
-        return activityService.addSonActivity(sonActivityForms,bindingResult);
+    public ResultVO addsonactivity(@Valid @RequestBody List<SonActivityForm> sonactivityforms, BindingResult bindingresult){
+        return activityService.addSonActivity(sonactivityforms,bindingresult);
     }
 }

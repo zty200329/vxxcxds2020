@@ -61,7 +61,7 @@ public class SwaggerConfig extends WebMvcConfigurerAdapter {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("微信小程序后台接口文档")
+                .title("后台接口文档")
                 .description("前端根据接口进行测试")
                 .termsOfServiceUrl("")
                 .version("1.0")

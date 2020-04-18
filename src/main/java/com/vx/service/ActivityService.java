@@ -21,7 +21,7 @@ public interface ActivityService {
      * @param bindingResult
      * @return
      */
-    ResultVO addActivity(ActivityForm activityForm, MultipartFile file, BindingResult bindingResult);
+    ResultVO addActivity(ActivityForm activityForm, BindingResult bindingResult);
 
 
     /**
@@ -31,4 +31,6 @@ public interface ActivityService {
      * @return
      */
     ResultVO addSonActivity(List<SonActivityForm> sonActivityForms, BindingResult bindingResult);
+
+    ResultVO addPicture(MultipartFile file);
 }

@@ -1,6 +1,7 @@
 package com.vx.controller;
 
 import com.vx.form.ActivityForm;
+import com.vx.form.CallNumberForm;
 import com.vx.form.JoinSonActivityForm;
 import com.vx.form.SonActivityForm;
 import com.vx.service.ActivityService;
@@ -49,13 +50,15 @@ public class ActivityController {
         return activityService.addSonActivity(sonactivityforms,bindingresult);
     }
 
-    @PostMapping("/test")
+    @PostMapping("/joinSonActivity")
     @ApiOperation("开始排队")
-    public ResultVO joinSonActivity(JoinSonActivityForm joinSonActivityForm){
-        return activityService.joinSonActivity(joinSonActivityForm);
+    public ResultVO joinSonActivity(@Valid JoinSonActivityForm joinSonActivityForm, BindingResult bindingresult){
+        return activityService.joinSonActivity(joinSonActivityForm,bindingresult);
     }
 
-    public ResultVO callNumber(){
-
+    @PostMapping("/callNumber")
+    @ApiOperation("叫号")
+    public ResultVO callNumber(@Valid CallNumberForm callNumberForm,BindingResult bindingResult){
+        return null;
     }
 }

@@ -1,6 +1,7 @@
 package com.vx.service;
 
 import com.vx.form.ActivityForm;
+import com.vx.form.CallNumberForm;
 import com.vx.form.JoinSonActivityForm;
 import com.vx.form.SonActivityForm;
 import com.vx.vo.ResultVO;
@@ -40,5 +41,13 @@ public interface ActivityService {
      * @param joinSonActivityForm
      * @return
      */
-    ResultVO joinSonActivity(JoinSonActivityForm joinSonActivityForm);
+    ResultVO joinSonActivity(JoinSonActivityForm joinSonActivityForm, BindingResult bindingresult);
+
+    /**
+     * 叫号
+     * @param callNumberForm
+     * @param bindingResult
+     * @return
+     */
+    ResultVO callNumber(CallNumberForm callNumberForm, BindingResult bindingResult);
 }

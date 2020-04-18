@@ -1,6 +1,7 @@
 package com.vx.controller;
 
 import com.vx.form.ActivityForm;
+import com.vx.form.JoinSonActivityForm;
 import com.vx.form.SonActivityForm;
 import com.vx.service.ActivityService;
 import com.vx.vo.ResultVO;
@@ -44,7 +45,17 @@ public class ActivityController {
 
     @PostMapping("/addSonActivity")
     @ApiOperation("创建一个大活动的下的排队项目")
-    public ResultVO addsonactivity(@Valid @RequestBody List<SonActivityForm> sonactivityforms, BindingResult bindingresult){
+    public ResultVO addSonActivity(@Valid @RequestBody List<SonActivityForm> sonactivityforms, BindingResult bindingresult){
         return activityService.addSonActivity(sonactivityforms,bindingresult);
+    }
+
+    @PostMapping("/test")
+    @ApiOperation("开始排队")
+    public ResultVO joinSonActivity(JoinSonActivityForm joinSonActivityForm){
+        return activityService.joinSonActivity(joinSonActivityForm);
+    }
+
+    public ResultVO callNumber(){
+
     }
 }

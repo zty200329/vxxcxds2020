@@ -1,6 +1,7 @@
 package com.vx.service;
 
 import com.vx.form.ActivityForm;
+import com.vx.form.JoinSonActivityForm;
 import com.vx.form.SonActivityForm;
 import com.vx.vo.ResultVO;
 import org.springframework.validation.BindingResult;
@@ -33,4 +34,11 @@ public interface ActivityService {
     ResultVO addSonActivity(List<SonActivityForm> sonActivityForms, BindingResult bindingResult);
 
     ResultVO addPicture(MultipartFile file);
+
+    /**
+     * 根据两个主键来加入排队
+     * @param joinSonActivityForm
+     * @return
+     */
+    ResultVO joinSonActivity(JoinSonActivityForm joinSonActivityForm);
 }

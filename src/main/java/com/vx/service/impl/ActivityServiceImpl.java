@@ -4,6 +4,7 @@ import com.vx.dao.ActivityMapper;
 import com.vx.dao.OperationMapper;
 import com.vx.enums.ResultEnum;
 import com.vx.form.ActivityForm;
+import com.vx.form.JoinSonActivityForm;
 import com.vx.form.SonActivityForm;
 import com.vx.model.Activity;
 import com.vx.model.Operation;
@@ -21,6 +22,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Set;
 
 import static com.vx.utils.MD5Util.convertMD5;
 
@@ -81,6 +83,26 @@ public class ActivityServiceImpl implements ActivityService {
         }
         return ResultVOUtil.success(UploadImageUtil.uploadFile(file));
     }
+
+    @Override
+    public ResultVO joinSonActivity(JoinSonActivityForm joinSonActivityForm) {
+        //登录校验
+        if (redisUtil.get(joinSonActivityForm.getOpenId()) == null) {
+            return ResultVOUtil.error(ResultEnum.USER_NOT_LOGIN);
+        }
+        String setName = joinSonActivityForm.getActivityId() + "+" +joinSonActivityForm.getSonActivityId();
+
+        redisUtil.zAdd(setName,joinSonActivityForm.getOpenId(),System.currentTimeMillis());
+        Long test1 = redisUtil.zRank("1+1","o6Dow");
+        log.info(String.valueOf(test1));
+        Set<String> sets = redisUtil.zRange("1+1",0,0);
+        for (String set : sets) {
+            log.info(set);
+        }
+        return ResultVOUtil.success();
+    }
+
+
 
 
 }

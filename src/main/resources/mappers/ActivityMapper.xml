@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.vx.dao.ActivityMapper" >
+  <resultMap id="BaseResultMap" type="com.vx.model.Activity" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="openid" property="openid" jdbcType="VARCHAR" />
+    <result column="activity_name" property="activityName" jdbcType="VARCHAR" />
+    <result column="phone_num" property="phoneNum" jdbcType="VARCHAR" />
+    <result column="activity_type" property="activityType" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="city" property="city" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="latitude" property="latitude" jdbcType="VARCHAR" />
+    <result column="longitude" property="longitude" jdbcType="VARCHAR" />
+    <result column="activity_time" property="activityTime" jdbcType="VARCHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="picture_url" property="pictureUrl" jdbcType="VARCHAR" />
+    <result column="is_true" property="isTrue" jdbcType="TINYINT" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from activity_main
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.vx.model.Activity" >
+    insert into activity_main ( openid, activity_name,
+      phone_num, activity_type, `name`, 
+      city, address, latitude, 
+      longitude, activity_time, description, 
+      picture_url, is_true)
+    values ( #{openid,jdbcType=VARCHAR}, #{activityName,jdbcType=VARCHAR},
+      #{phoneNum,jdbcType=VARCHAR}, #{activityType,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
+      #{city,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, #{latitude,jdbcType=VARCHAR}, 
+      #{longitude,jdbcType=VARCHAR}, #{activityTime,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
+      #{pictureUrl,jdbcType=VARCHAR}, #{isTrue,jdbcType=TINYINT})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.vx.model.Activity" >
+    update activity_main
+    set openid = #{openid,jdbcType=VARCHAR},
+      activity_name = #{activityName,jdbcType=VARCHAR},
+      phone_num = #{phoneNum,jdbcType=VARCHAR},
+      activity_type = #{activityType,jdbcType=INTEGER},
+      `name` = #{name,jdbcType=VARCHAR},
+      city = #{city,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      latitude = #{latitude,jdbcType=VARCHAR},
+      longitude = #{longitude,jdbcType=VARCHAR},
+      activity_time = #{activityTime,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      picture_url = #{pictureUrl,jdbcType=VARCHAR},
+      is_true = #{isTrue,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, openid, activity_name, phone_num, activity_type, `name`, city, address, 
+    latitude, longitude, activity_time, description, picture_url, is_true
+    from activity_main
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, openid, activity_name, phone_num, activity_type, `name`, city, address, 
+    latitude, longitude, activity_time, description, picture_url, is_true
+    from activity_main
+  </select>
+</mapper>

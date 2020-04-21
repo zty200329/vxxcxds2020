@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.vx.dao.ActivityUserHistoryMapper">
+    <resultMap id="BaseResultMap" type="com.vx.model.ActivityUserHistory">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="son_activity_id" property="sonActivityId" jdbcType="BIGINT"/>
+        <result column="activity_id" property="activityId" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="activity_name" property="activityName" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="address" property="address" jdbcType="VARCHAR"/>
+        <result column="time" property="time" jdbcType="TIMESTAMP"/>
+        <result column="is_ok" property="isOk" jdbcType="BIT"/>
+    </resultMap>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from activity_user_history
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+    <insert id="insert" parameterType="com.vx.model.ActivityUserHistory">
+    insert into activity_user_history (son_activity_id, activity_id,
+      user_id, activity_name, `name`, 
+      address, `time`, is_ok)
+    values (#{sonActivityId,jdbcType=BIGINT}, #{activityId,jdbcType=BIGINT},
+      #{userId,jdbcType=BIGINT}, #{activityName,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{address,jdbcType=VARCHAR}, #{time,jdbcType=TIMESTAMP}, #{isOk,jdbcType=BIT})
+  </insert>
+    <update id="updateByPrimaryKey" parameterType="com.vx.model.ActivityUserHistory">
+    update activity_user_history
+    set son_activity_id = #{sonActivityId,jdbcType=BIGINT},
+      activity_id = #{activityId,jdbcType=BIGINT},
+      user_id = #{userId,jdbcType=BIGINT},
+      activity_name = #{activityName,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      `time` = #{time,jdbcType=TIMESTAMP},
+      is_ok = #{isOk,jdbcType=BIT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+    select id, son_activity_id, activity_id, user_id, activity_name, `name`, address, 
+    `time`, is_ok
+    from activity_user_history
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+    select id, son_activity_id, activity_id, user_id, activity_name, `name`, address, 
+    `time`, is_ok
+    from activity_user_history
+  </select>
+    <select id="selectByOpenId" resultMap="BaseResultMap">
+    select id, son_activity_id, activity_id, user_id, activity_name, `name`, address,
+    `time`, is_ok
+    from activity_user_history
+    where user_id = #{userId,jdbcType=BIGINT} AND
+      activity_id = #{activityId,jdbcType=BIGINT} AND
+      son_activity_id = #{sonActivityId,jdbcType=BIGINT}
+  </select>
+</mapper>

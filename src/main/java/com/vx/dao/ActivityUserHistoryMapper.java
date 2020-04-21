@@ -1,6 +1,7 @@
 package com.vx.dao;
 
 import com.vx.model.ActivityUserHistory;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,5 +17,5 @@ public interface ActivityUserHistoryMapper {
 
     int updateByPrimaryKey(ActivityUserHistory record);
 
-    ActivityUserHistory selectByOpenId(Long id,Long activityId,Long sonActivityId);
+    ActivityUserHistory selectByOpenId(@Param("userId")Long id,@Param("activityId") Long activityId, @Param("sonActivityId") Long sonActivityId,@Param("isOk") Boolean isOk);
 }

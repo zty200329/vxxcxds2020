@@ -53,6 +53,7 @@
     from activity_user_history
     where user_id = #{userId,jdbcType=BIGINT} AND
       activity_id = #{activityId,jdbcType=BIGINT} AND
-      son_activity_id = #{sonActivityId,jdbcType=BIGINT}
+      son_activity_id = #{sonActivityId,jdbcType=BIGINT} AND
+      is_ok = #{isOk,jdbcType=BIT}
   </select>
 </mapper>

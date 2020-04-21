@@ -20,6 +20,7 @@ import com.vx.utils.ResultVOUtil;
 import com.vx.utils.UploadImageUtil;
 import com.vx.vo.ResultVO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;
@@ -99,6 +100,12 @@ public class ActivityServiceImpl implements ActivityService {
         return ResultVOUtil.success(UploadImageUtil.uploadFile(file));
     }
 
+    /**
+     * 参与排队
+     * @param joinSonActivityForm
+     * @param bindingresult
+     * @return
+     */
     @Override
     public ResultVO joinSonActivity(JoinSonActivityForm joinSonActivityForm, BindingResult bindingresult) {
         if (bindingresult.hasErrors()) {
@@ -197,7 +204,8 @@ public class ActivityServiceImpl implements ActivityService {
         String p1 = temp[0];
         Long p2 = Long.valueOf(temp[1]);
         Long p3 = Long.valueOf(temp[2]);
-        ActivityUserHistory history = activityUserHistoryMapper.selectByOpenId(getUserIdByOpenId(p1),p2,p3);
+        log.info(p1);
+        ActivityUserHistory history = activityUserHistoryMapper.selectByOpenId(getUserIdByOpenId(p1),p2,p3,false);
         history.setIsOk(true);
         activityUserHistoryMapper.updateByPrimaryKey(history);
         log.info("排队完成");

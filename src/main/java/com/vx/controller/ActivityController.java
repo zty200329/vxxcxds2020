@@ -59,6 +59,6 @@ public class ActivityController {
     @PostMapping("/callNumber")
     @ApiOperation("叫号")
     public ResultVO callNumber(@Valid CallNumberForm callNumberForm,BindingResult bindingResult){
-        return null;
+        return activityService.callNumber(callNumberForm,bindingResult);
     }
 }

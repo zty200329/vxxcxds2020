@@ -4,11 +4,9 @@ import com.vx.dao.ActivityMapper;
 import com.vx.dao.ActivityUserHistoryMapper;
 import com.vx.dao.OperationMapper;
 import com.vx.dao.UserMapper;
+import com.vx.dto.ActivityDTO;
 import com.vx.enums.ResultEnum;
-import com.vx.form.ActivityForm;
-import com.vx.form.CallNumberForm;
-import com.vx.form.JoinSonActivityForm;
-import com.vx.form.SonActivityForm;
+import com.vx.form.*;
 import com.vx.model.Activity;
 import com.vx.model.ActivityUserHistory;
 import com.vx.model.Operation;
@@ -20,7 +18,6 @@ import com.vx.utils.ResultVOUtil;
 import com.vx.utils.UploadImageUtil;
 import com.vx.vo.ResultVO;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;
@@ -66,13 +63,15 @@ public class ActivityServiceImpl implements ActivityService {
             log.info("参数注意必填项！");
             return ResultVOUtil.error(bindingResult.getFieldError().getDefaultMessage());
         }
-        if (redisUtil.get(activityForm.getOpenId()) == null) {
-            return ResultVOUtil.error(ResultEnum.USER_NOT_LOGIN);
-        }
+//        if (redisUtil.get(activityForm.getOpenId()) == null) {
+//            return ResultVOUtil.error(ResultEnum.USER_NOT_LOGIN);
+//        }
 
         Activity activity = new Activity();
         activity.setOpenid(activityForm.getOpenId());
         BeanUtils.copyProperties(activityForm, activity);
+        activity.setLatitude(Double.valueOf(activityForm.getLatitude()));
+        activity.setLongitude(Double.valueOf(activityForm.getLongitude()));
         activity.setPictureUrl(activityForm.getFileUrl());
         activity.setIsTrue((byte) 1);
         log.info(activity.toString());
@@ -233,6 +232,27 @@ public class ActivityServiceImpl implements ActivityService {
     public boolean checkOpenId(Long id, String openid) {
         Activity activity = activityMapper.selectByPrimaryKey(id);
         return openid.equals(activity.getOpenid());
+    }
+
+    public ResultVO selectByDistance(ActivityDistanceForm activityDistanceForm,BindingResult bindingResult){
+        if (bindingResult.hasErrors()) {
+            log.info("参数注意必填项！");
+            return ResultVOUtil.error(bindingResult.getFieldError().getDefaultMessage());
+        }
+        //先计算查询点的经纬度范围
+        double r = 6371;//地球半径千米
+        double dis = activityDistanceForm.getDistance();//0.5千米距离
+        double dlng =  2*Math.asin(Math.sin(dis/(2*r))/Math.cos(activityDistanceForm.getLatitude()*Math.PI/180));
+        dlng = dlng*180/Math.PI;//角度转为弧度
+        double dlat = dis/r;
+        dlat = dlat*180/Math.PI;
+        double minlat =activityDistanceForm.getLatitude()-dlat;
+        double maxlat = activityDistanceForm.getLatitude()+dlat;
+        double minlng = activityDistanceForm.getLongitude() -dlng;
+        double maxlng = activityDistanceForm.getLongitude() + dlng;
+//        List<ActivityDTO> activityVOS = activityMapper.selectAsDistance(minlat,maxlat,minlng,maxlng);
+//        return ResultVOUtil.success(activityVOS);
+        return null;
     }
 
 

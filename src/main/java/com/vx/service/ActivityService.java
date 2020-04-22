@@ -1,9 +1,6 @@
 package com.vx.service;
 
-import com.vx.form.ActivityForm;
-import com.vx.form.CallNumberForm;
-import com.vx.form.JoinSonActivityForm;
-import com.vx.form.SonActivityForm;
+import com.vx.form.*;
 import com.vx.vo.ResultVO;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
@@ -50,4 +47,7 @@ public interface ActivityService {
      * @return
      */
     ResultVO callNumber(CallNumberForm callNumberForm, BindingResult bindingResult);
+
+
+    public ResultVO selectByDistance(ActivityDistanceForm activityDistanceForm,BindingResult bindingResult);
 }

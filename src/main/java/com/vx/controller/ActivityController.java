@@ -1,9 +1,6 @@
 package com.vx.controller;
 
-import com.vx.form.ActivityForm;
-import com.vx.form.CallNumberForm;
-import com.vx.form.JoinSonActivityForm;
-import com.vx.form.SonActivityForm;
+import com.vx.form.*;
 import com.vx.service.ActivityService;
 import com.vx.vo.ResultVO;
 import io.swagger.annotations.Api;
@@ -60,5 +57,11 @@ public class ActivityController {
     @ApiOperation("叫号")
     public ResultVO callNumber(@Valid CallNumberForm callNumberForm,BindingResult bindingResult){
         return activityService.callNumber(callNumberForm,bindingResult);
+    }
+
+    @PostMapping("/selectByDistance")
+    @ApiOperation("获取店家列表")
+    public ResultVO selectByDistance(ActivityDistanceForm activityDistanceForm,BindingResult bindingResult){
+        return activityService.selectByDistance(activityDistanceForm,bindingResult);
     }
 }

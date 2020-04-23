@@ -53,4 +53,6 @@ public interface ActivityService {
 
     ResultVO selectByActivityId(Long id);
 
+    ResultVO getOwnActivity(String openId);
+
 }

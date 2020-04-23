@@ -50,6 +50,14 @@
       is_true = #{isTrue,jdbcType=TINYINT}
     where id = #{id,jdbcType=BIGINT}
   </update>
+  <select id="selectByOpenid" resultType="com.vx.dto.ActivityDTO" >
+    select id as id, activity_name as activityName, phone_num as phoneNum, activity_type as activityType, `name` as name,
+    city as city, address as address,
+    latitude as latitude, longitude as longitude, activity_time as activityTime, description as description,
+    picture_url as pictureUrl
+    from activity_main
+    where openid = #{openid,jdbcType=VARCHAR}
+  </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select id, openid, activity_name, phone_num, activity_type, `name`, city, address, 
     latitude, longitude, activity_time, description, picture_url, is_true

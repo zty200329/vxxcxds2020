@@ -70,4 +70,10 @@ public class ActivityController {
     public ResultVO selectSonActivity(@RequestParam("id") Long id){
         return activityService.selectByActivityId(id);
     }
+
+    @GetMapping("/getOwnActivity")
+    @ApiOperation("获取自己的活动")
+    public ResultVO getOwnActivity(String openId){
+        return activityService.getOwnActivity(openId);
+    }
 }

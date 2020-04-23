@@ -13,6 +13,8 @@ import com.vx.service.ActivityService;
 import com.vx.utils.*;
 import com.vx.vo.ActivityVO;
 import com.vx.vo.ResultVO;
+import com.vx.vo.SubscribeMessageVO;
+import com.vx.vo.WxMssVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
@@ -21,10 +23,12 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
+import sun.net.www.http.Hurryable;
 
 import javax.xml.ws.handler.LogicalHandler;
 import java.util.*;
@@ -109,9 +113,9 @@ public class ActivityServiceImpl implements ActivityService {
             return ResultVOUtil.error(bindingresult.getFieldError().getDefaultMessage());
         }
         //登录校验
-//        if (redisUtil.get(joinSonActivityForm.getOpenId()) == null) {
-//            return ResultVOUtil.error(ResultEnum.USER_NOT_LOGIN);
-//        }
+        if (redisUtil.get(joinSonActivityForm.getOpenId()) == null) {
+            return ResultVOUtil.error(ResultEnum.USER_NOT_LOGIN);
+        }
         //生成排队队列的key
         String setName = joinSonActivityForm.getActivityId() + "+" + joinSonActivityForm.getSonActivityId();
         if (redisUtil.zRank(setName, joinSonActivityForm.getOpenId()) != null) {
@@ -182,12 +186,18 @@ public class ActivityServiceImpl implements ActivityService {
 
 
             //消息队列实现订阅提醒功能，预留接口
+
+
             redisUtil.zRemove(setName, peopleSet);
             log.info("移除： " + peopleSet);
         }
         return ResultVOUtil.success();
     }
 
+    /**
+     * 叫号后更新状态
+     * @param peopleSet
+     */
     @RabbitListener(bindings = {
             @QueueBinding(
                     value = @Queue,//创建临时队列
@@ -205,6 +215,41 @@ public class ActivityServiceImpl implements ActivityService {
         history.setIsOk(true);
         activityUserHistoryMapper.updateByPrimaryKey(history);
         log.info("排队完成");
+    }
+
+    /**
+     * 发送订阅消息
+     * @param peopleSet
+     */
+    @RabbitListener(bindings = {
+            @QueueBinding(
+                    value = @Queue,//创建临时队列
+                    exchange = @Exchange(value = "updateHistory", type = "fanout")
+            )
+    })
+    public void sendMessage(String peopleSet) {
+        String[] temp;
+        temp = peopleSet.split("\\+");
+        String p1 = temp[0];
+        Long p2 = Long.valueOf(temp[1]);
+        Long p3 = Long.valueOf(temp[2]);
+        ActivityUserHistory history = activityUserHistoryMapper.selectByOpenId2(getUserIdByOpenId(p1), p2, p3);
+        SubscribeMessageVO bean = new SubscribeMessageVO();
+        bean.setThing4(new SubscribeMessageVO.Thing4(history.getActivityName()+":"+history.getName()));
+        bean.setThing6(new SubscribeMessageVO.Thing6(history.getAddress()));
+        bean.setThing7(new SubscribeMessageVO.Thing7("请到服务处联系工作人员"));
+        WxMssVO wxMssVO = new WxMssVO();
+        wxMssVO.setTouser(p1);
+        wxMssVO.setTemplate_id("ZpQrMu4Y9fx8xv5qOSsaspeFCCA9RKazzCFQlplB1iA");
+        wxMssVO.setData(bean);
+        push(wxMssVO);
+    }
+
+    public void push(WxMssVO wxMssVO){
+        String url = "https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token="+getAccessToken();
+        String json = JsonUtils.objectToJson(wxMssVO);
+        String vxResult = HttpClientUtil.doPostJson(url,json);
+        log.info("返回的内容：" +vxResult);
     }
 
     public Long getUserIdByOpenId(String openId) {
@@ -253,6 +298,7 @@ public class ActivityServiceImpl implements ActivityService {
         return ResultVOUtil.success(activityVOS);
     }
 
+
     /**
      * 查出子活动
      *
@@ -263,6 +309,14 @@ public class ActivityServiceImpl implements ActivityService {
     public ResultVO selectByActivityId(Long id) {
         List<OperationDTO> operationDTOS = operationMapper.selectByActivityId(id);
         return ResultVOUtil.success(operationDTOS);
+    }
+
+    @Override
+    public ResultVO getOwnActivity(String openId) {
+        if (redisUtil.get(openId) == null) {
+            return ResultVOUtil.error(ResultEnum.USER_NOT_LOGIN);
+        }
+        return ResultVOUtil.success(activityMapper.selectByOpenid(openId));
     }
 
     public String getAccessToken() {
@@ -286,9 +340,6 @@ public class ActivityServiceImpl implements ActivityService {
         //POST https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=ACCESS_TOKEN
     }
 
-//    public String push(){
-//
-//    }
 
 
 }

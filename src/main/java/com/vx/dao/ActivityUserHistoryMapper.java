@@ -17,5 +17,9 @@ public interface ActivityUserHistoryMapper {
 
     int updateByPrimaryKey(ActivityUserHistory record);
 
-    ActivityUserHistory selectByOpenId(@Param("userId")Long id,@Param("activityId") Long activityId, @Param("sonActivityId") Long sonActivityId,@Param("isOk") Boolean isOk);
+    ActivityUserHistory selectByOpenId(@Param("userId")Long id,
+                                       @Param("activityId") Long activityId, @Param("sonActivityId") Long sonActivityId,
+                                       @Param("isOk") Boolean isOk);
+    ActivityUserHistory selectByOpenId2(@Param("userId")Long id,
+                                       @Param("activityId") Long activityId, @Param("sonActivityId") Long sonActivityId);
 }

@@ -35,4 +35,10 @@
     select id, activity_id, `name`, description, is_true
     from operation
   </select>
+  <select id="selectByActivityId" resultType="com.vx.dto.OperationDTO" parameterType="java.lang.Long" >
+    select id as id, activity_id as activityId, `name` as name, description as description
+    from operation
+    where activity_id = #{activityId,jdbcType=BIGINT}
+    and is_true = 1
+  </select>
 </mapper>

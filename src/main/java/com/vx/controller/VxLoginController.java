@@ -1,6 +1,7 @@
 package com.vx.controller;
 
 import com.vx.form.CodeForm;
+import com.vx.service.ActivityService;
 import com.vx.service.AnonService;
 import com.vx.vo.ResultVO;
 import io.swagger.annotations.Api;
@@ -32,6 +33,8 @@ public class VxLoginController {
     //注入rabbitTemplate
     @Autowired
     private RabbitTemplate rabbitTemplate;
+    @Autowired
+    private ActivityService activityService;
 
     @PostMapping("/vxLogin")
     public ResultVO vxLogin(@Validated CodeForm code, BindingResult bindingResult){
@@ -40,10 +43,6 @@ public class VxLoginController {
 
     @PostMapping("/test")
     public void test(){
-        CodeForm codeForm = new CodeForm();
-        codeForm.setCode("safasdfdsdfasdfasdfa");
-        //fanout 广播
-            rabbitTemplate.convertAndSend("test","",codeForm);
 
     }
 

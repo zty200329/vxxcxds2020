@@ -29,7 +29,7 @@ public class LocationUtils {
                 * Math.pow(Math.sin(b / 2), 2)));
         s = s * EARTH_RADIUS;
         s = Math.round(s * 10000d) / 10000d;
-        s = s * 1000;
+
         return s;
     }
 

@@ -61,4 +61,14 @@
     latitude, longitude, activity_time, description, picture_url, is_true
     from activity_main
   </select>
+  <select id="selectAsDistance" resultType="com.vx.dto.ActivityDTO" >
+    select id as id, activity_name as activityName, phone_num as phoneNum, activity_type as activityType, `name` as name,
+    city as city, address as address,
+    latitude as latitude, longitude as longitude, activity_time as activityTime, description as description,
+    picture_url as pictureUrl
+    from activity_main
+    <if test="dis != 0.0">
+    where latitude &gt; #{minlat} and latitude &lt; #{maxlat} and longitude &gt; #{minlng} and longitude &lt; #{maxlng}
+    </if>
+  </select>
 </mapper>

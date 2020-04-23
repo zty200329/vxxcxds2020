@@ -23,6 +23,10 @@ public class ActivityDTO {
 
     private String address;
 
+    private Double latitude;
+
+    private Double longitude;
+
     private String activityTime;
 
     private String description;

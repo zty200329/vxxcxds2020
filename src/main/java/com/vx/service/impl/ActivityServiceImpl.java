@@ -5,17 +5,13 @@ import com.vx.dao.ActivityUserHistoryMapper;
 import com.vx.dao.OperationMapper;
 import com.vx.dao.UserMapper;
 import com.vx.dto.ActivityDTO;
+import com.vx.dto.OperationDTO;
 import com.vx.enums.ResultEnum;
 import com.vx.form.*;
-import com.vx.model.Activity;
-import com.vx.model.ActivityUserHistory;
-import com.vx.model.Operation;
-import com.vx.model.User;
+import com.vx.model.*;
 import com.vx.service.ActivityService;
-import com.vx.utils.DateUtil;
-import com.vx.utils.RedisUtil;
-import com.vx.utils.ResultVOUtil;
-import com.vx.utils.UploadImageUtil;
+import com.vx.utils.*;
+import com.vx.vo.ActivityVO;
 import com.vx.vo.ResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.Exchange;
@@ -30,8 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Set;
+import javax.xml.ws.handler.LogicalHandler;
+import java.util.*;
 
 /**
  * @author zty
@@ -101,6 +97,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     /**
      * 参与排队
+     *
      * @param joinSonActivityForm
      * @param bindingresult
      * @return
@@ -122,7 +119,7 @@ public class ActivityServiceImpl implements ActivityService {
         }
         //fanout 广播
         rabbitTemplate.convertAndSend("insertHistory", "",
-                joinSonActivityForm.getOpenId()+"+"+joinSonActivityForm.getActivityId()+"+"+joinSonActivityForm.getSonActivityId());
+                joinSonActivityForm.getOpenId() + "+" + joinSonActivityForm.getActivityId() + "+" + joinSonActivityForm.getSonActivityId());
 
 
         redisUtil.zAdd(setName, joinSonActivityForm.getOpenId(), System.currentTimeMillis());
@@ -181,7 +178,7 @@ public class ActivityServiceImpl implements ActivityService {
         for (String peopleSet : peopleSets) {
             //fanout 广播
             rabbitTemplate.convertAndSend("updateHistory", "",
-                    peopleSet+"+"+callNumberForm.getActivityId()+"+"+callNumberForm.getSonActivityId());
+                    peopleSet + "+" + callNumberForm.getActivityId() + "+" + callNumberForm.getSonActivityId());
 
 
             //消息队列实现订阅提醒功能，预留接口
@@ -204,19 +201,12 @@ public class ActivityServiceImpl implements ActivityService {
         Long p2 = Long.valueOf(temp[1]);
         Long p3 = Long.valueOf(temp[2]);
         log.info(p1);
-        ActivityUserHistory history = activityUserHistoryMapper.selectByOpenId(getUserIdByOpenId(p1),p2,p3,false);
+        ActivityUserHistory history = activityUserHistoryMapper.selectByOpenId(getUserIdByOpenId(p1), p2, p3, false);
         history.setIsOk(true);
         activityUserHistoryMapper.updateByPrimaryKey(history);
         log.info("排队完成");
     }
 
-    public static void main(String[] args) {
-        String peopleSet = "asdfasfasf+ssss+asfas";
-        String[] temp;
-        temp = peopleSet.split("\\+");
-        String p = temp[0];
-        System.out.println(p);
-    }
     public Long getUserIdByOpenId(String openId) {
         User user = userMapper.selectByOpenid(openId);
         return user.getId();
@@ -234,7 +224,7 @@ public class ActivityServiceImpl implements ActivityService {
         return openid.equals(activity.getOpenid());
     }
 
-    public ResultVO selectByDistance(ActivityDistanceForm activityDistanceForm,BindingResult bindingResult){
+    public ResultVO selectByDistance(ActivityDistanceForm activityDistanceForm, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             log.info("参数注意必填项！");
             return ResultVOUtil.error(bindingResult.getFieldError().getDefaultMessage());
@@ -242,18 +232,65 @@ public class ActivityServiceImpl implements ActivityService {
         //先计算查询点的经纬度范围
         double r = 6371;//地球半径千米
         double dis = activityDistanceForm.getDistance();//0.5千米距离
-        double dlng =  2*Math.asin(Math.sin(dis/(2*r))/Math.cos(activityDistanceForm.getLatitude()*Math.PI/180));
-        dlng = dlng*180/Math.PI;//角度转为弧度
-        double dlat = dis/r;
-        dlat = dlat*180/Math.PI;
-        double minlat =activityDistanceForm.getLatitude()-dlat;
-        double maxlat = activityDistanceForm.getLatitude()+dlat;
-        double minlng = activityDistanceForm.getLongitude() -dlng;
+        log.info(String.valueOf(dis));
+        double dlng = 2 * Math.asin(Math.sin(dis / (2 * r)) / Math.cos(activityDistanceForm.getLatitude() * Math.PI / 180));
+        dlng = dlng * 180 / Math.PI;//角度转为弧度
+        double dlat = dis / r;
+        dlat = dlat * 180 / Math.PI;
+        double minlat = activityDistanceForm.getLatitude() - dlat;
+        double maxlat = activityDistanceForm.getLatitude() + dlat;
+        double minlng = activityDistanceForm.getLongitude() - dlng;
         double maxlng = activityDistanceForm.getLongitude() + dlng;
-//        List<ActivityDTO> activityVOS = activityMapper.selectAsDistance(minlat,maxlat,minlng,maxlng);
-//        return ResultVOUtil.success(activityVOS);
-        return null;
+        List<ActivityDTO> activityDTOS = activityMapper.selectAsDistance(minlat, maxlat, minlng, maxlng, dis);
+        List<ActivityVO> activityVOS = new LinkedList<>();
+        for (ActivityDTO activityDTO : activityDTOS) {
+            ActivityVO activityVO = new ActivityVO();
+            BeanUtils.copyProperties(activityDTO, activityVO);
+            double distance = LocationUtils.getDistance(activityDistanceForm.getLatitude(), activityDistanceForm.getLongitude(), activityDTO.getLatitude(), activityDTO.getLongitude());
+            activityVO.setDistance(distance);
+            activityVOS.add(activityVO);
+        }
+        return ResultVOUtil.success(activityVOS);
     }
+
+    /**
+     * 查出子活动
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public ResultVO selectByActivityId(Long id) {
+        List<OperationDTO> operationDTOS = operationMapper.selectByActivityId(id);
+        return ResultVOUtil.success(operationDTOS);
+    }
+
+    public String getAccessToken() {
+        if (redisUtil.get("access_token") != null) {
+            return (String) redisUtil.get("access_token");
+        }
+        //GET https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=APPSECRET
+        String url = "https://api.weixin.qq.com/cgi-bin/token";
+        Map<String, String> param = new HashMap<>();
+        param.put("grant_type", "client_credential");
+        param.put("appid", "wx7e139fc4dec9fd08");
+        param.put("secret", "d483c36cf9f93500a17aa0cb788a0f48");
+
+        String vxResult = HttpClientUtil.doGet(url, param);
+        log.info(vxResult);
+
+        getAccessTokenModel accessTokenModel = JsonUtils.jsonToPojo(vxResult, getAccessTokenModel.class);
+
+        redisUtil.set("access_token", accessTokenModel.getAccess_token(), accessTokenModel.getExpires_in());
+        return accessTokenModel.getAccess_token();
+        //POST https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=ACCESS_TOKEN
+    }
+
+//    public String push(){
+//
+//    }
 
 
 }
+
+

@@ -1,6 +1,8 @@
 package com.vx.dao;
 
+import com.vx.dto.ActivityDTO;
 import com.vx.model.Activity;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,4 +17,8 @@ public interface ActivityMapper {
     List<Activity> selectAll();
 
     int updateByPrimaryKey(Activity record);
+
+    List<ActivityDTO> selectAsDistance(@Param("minlat")double minlat,@Param("maxlat")double maxlat,
+                                       @Param("minlng")double minlng,@Param("maxlng")double maxlng,
+                                       @Param("dis") double dis);
 }

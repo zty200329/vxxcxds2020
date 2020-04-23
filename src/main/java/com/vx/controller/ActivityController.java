@@ -64,4 +64,10 @@ public class ActivityController {
     public ResultVO selectByDistance(ActivityDistanceForm activityDistanceForm,BindingResult bindingResult){
         return activityService.selectByDistance(activityDistanceForm,bindingResult);
     }
+
+    @PostMapping("/getSonActivityById")
+    @ApiOperation("获取主体活动下的子排队")
+    public ResultVO selectSonActivity(@RequestParam("id") Long id){
+        return activityService.selectByActivityId(id);
+    }
 }

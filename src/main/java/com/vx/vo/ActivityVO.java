@@ -29,5 +29,5 @@ public class ActivityVO {
 
     private String pictureUrl;
 
-    private Float distance;
+    private Double distance;
 }

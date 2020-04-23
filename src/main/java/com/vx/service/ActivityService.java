@@ -49,5 +49,8 @@ public interface ActivityService {
     ResultVO callNumber(CallNumberForm callNumberForm, BindingResult bindingResult);
 
 
-    public ResultVO selectByDistance(ActivityDistanceForm activityDistanceForm,BindingResult bindingResult);
+    ResultVO selectByDistance(ActivityDistanceForm activityDistanceForm,BindingResult bindingResult);
+
+    ResultVO selectByActivityId(Long id);
+
 }

@@ -1,5 +1,6 @@
 package com.vx.dao;
 
+import com.vx.dto.OperationDTO;
 import com.vx.model.Operation;
 import org.springframework.stereotype.Repository;
 
@@ -15,4 +16,6 @@ public interface OperationMapper {
     List<Operation> selectAll();
 
     int updateByPrimaryKey(Operation record);
+
+    List<OperationDTO> selectByActivityId(Long id);
 }

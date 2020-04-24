@@ -24,7 +24,6 @@ public interface ActivityService {
 
 
     /**
-     * 差UN个Ian
      * @param sonActivityForms
      * @param bindingResult
      * @return
@@ -55,5 +54,28 @@ public interface ActivityService {
 
     ResultVO getOwnActivity(String openId);
 
+    /**
+     * 关闭某条排队 会一次性叫完号
+     * @param joinSonActivityForm
+     * @param bindingResult
+     * @return
+     */
     ResultVO stopOneQueueing(JoinSonActivityForm joinSonActivityForm,BindingResult bindingResult);
+
+
+    /**
+     * 暂停排号,但不叫号,叫号分离
+     * @param joinSonActivityForm
+     * @param bindingResult
+     * @return
+     */
+    ResultVO pauseQueue(JoinSonActivityForm joinSonActivityForm,BindingResult bindingResult);
+
+    /**
+     * 重新开启排队
+     * @param joinSonActivityForm
+     * @param bindingResult
+     * @return
+     */
+    ResultVO restartQueue(JoinSonActivityForm joinSonActivityForm ,BindingResult bindingResult);
 }

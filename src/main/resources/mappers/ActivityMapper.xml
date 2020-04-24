@@ -56,7 +56,7 @@
     latitude as latitude, longitude as longitude, activity_time as activityTime, description as description,
     picture_url as pictureUrl
     from activity_main
-    where openid = #{openid,jdbcType=VARCHAR}
+    where openid = #{openid,jdbcType=VARCHAR} and is_true = 1
   </select>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     select id, openid, activity_name, phone_num, activity_type, `name`, city, address, 

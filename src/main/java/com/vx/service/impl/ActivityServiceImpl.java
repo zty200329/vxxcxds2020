@@ -63,9 +63,10 @@ public class ActivityServiceImpl implements ActivityService {
             log.info("参数注意必填项！");
             return ResultVOUtil.error(bindingResult.getFieldError().getDefaultMessage());
         }
-//        if (redisUtil.get(activityForm.getOpenId()) == null) {
-//            return ResultVOUtil.error(ResultEnum.USER_NOT_LOGIN);
-//        }
+        if (redisUtil.get(activityForm.getOpenId()) == null) {
+            return ResultVOUtil.error(ResultEnum.USER_NOT_LOGIN);
+        }
+
 
         Activity activity = new Activity();
         activity.setOpenid(activityForm.getOpenId());
@@ -115,6 +116,11 @@ public class ActivityServiceImpl implements ActivityService {
         //登录校验
         if (redisUtil.get(joinSonActivityForm.getOpenId()) == null) {
             return ResultVOUtil.error(ResultEnum.USER_NOT_LOGIN);
+        }
+        Operation operation = operationMapper.selectByPrimaryKey(joinSonActivityForm.getSonActivityId());
+
+        if (operation.getIsTrue() != 1) {
+            return ResultVOUtil.error(ResultEnum.QUEUE_IS_CLOSED);
         }
         //生成排队队列的key
         String setName = joinSonActivityForm.getActivityId() + "+" + joinSonActivityForm.getSonActivityId();
@@ -171,6 +177,11 @@ public class ActivityServiceImpl implements ActivityService {
             log.info("参数注意必填项！");
             return ResultVOUtil.error(bindingResult.getFieldError().getDefaultMessage());
         }
+        Operation operation = operationMapper.selectByPrimaryKey(callNumberForm.getSonActivityId());
+
+        if (operation.getIsTrue() != 1) {
+            return ResultVOUtil.error(ResultEnum.QUEUE_IS_CLOSED);
+        }
         //生成排队队列的key
         String setName = callNumberForm.getActivityId() + "+" + callNumberForm.getSonActivityId();
 
@@ -196,6 +207,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     /**
      * 叫号后更新状态
+     *
      * @param peopleSet
      */
     @RabbitListener(bindings = {
@@ -219,6 +231,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     /**
      * 发送订阅消息
+     *
      * @param peopleSet
      */
     @RabbitListener(bindings = {
@@ -235,7 +248,7 @@ public class ActivityServiceImpl implements ActivityService {
         Long p3 = Long.valueOf(temp[2]);
         ActivityUserHistory history = activityUserHistoryMapper.selectByOpenId2(getUserIdByOpenId(p1), p2, p3);
         SubscribeMessageVO bean = new SubscribeMessageVO();
-        bean.setThing4(new SubscribeMessageVO.Thing4(history.getActivityName()+":"+history.getName()));
+        bean.setThing4(new SubscribeMessageVO.Thing4(history.getActivityName() + ":" + history.getName()));
         bean.setThing6(new SubscribeMessageVO.Thing6(history.getAddress()));
         bean.setThing7(new SubscribeMessageVO.Thing7("请到服务处联系工作人员"));
         WxMssVO wxMssVO = new WxMssVO();
@@ -245,11 +258,11 @@ public class ActivityServiceImpl implements ActivityService {
         push(wxMssVO);
     }
 
-    public void push(WxMssVO wxMssVO){
-        String url = "https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token="+getAccessToken();
+    public void push(WxMssVO wxMssVO) {
+        String url = "https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=" + getAccessToken();
         String json = JsonUtils.objectToJson(wxMssVO);
-        String vxResult = HttpClientUtil.doPostJson(url,json);
-        log.info("返回的内容：" +vxResult);
+        String vxResult = HttpClientUtil.doPostJson(url, json);
+        log.info("返回的内容：" + vxResult);
     }
 
     public Long getUserIdByOpenId(String openId) {
@@ -321,20 +334,78 @@ public class ActivityServiceImpl implements ActivityService {
 
     /**
      * 将某一条排队关闭 删除redis排队信息
+     *
      * @param joinSonActivityForm
      * @param bindingResult
      * @return
      */
     @Override
     public ResultVO stopOneQueueing(JoinSonActivityForm joinSonActivityForm, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            log.info("参数注意必填项！");
+            return ResultVOUtil.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+        }
+        if (!checkOpenId(joinSonActivityForm.getActivityId(), joinSonActivityForm.getOpenId()))
+            return ResultVOUtil.error(ResultEnum.PERMISSION_DENNY);
         Operation operation = operationMapper.selectByPrimaryKey(joinSonActivityForm.getSonActivityId());
         operation.setIsTrue((byte) 0);
+        operationMapper.updateByPrimaryKey(operation);
+        String setName = joinSonActivityForm.getActivityId() + "+" + joinSonActivityForm.getSonActivityId();
+        Set<String> sets = redisUtil.zReverseRangeByScore(setName,
+                0, System.currentTimeMillis());
+
+
+        for (String peopleSet : sets) {
+            //fanout 广播
+            rabbitTemplate.convertAndSend("updateHistory", "",
+                    peopleSet + "+" + joinSonActivityForm.getActivityId() + "+" + joinSonActivityForm.getSonActivityId());
+
+
+            //消息队列实现订阅提醒功能，预留接口
+
+
+            redisUtil.zRemove(setName, peopleSet);
+            log.info("移除： " + peopleSet);
+        }
+        return ResultVOUtil.success();
+    }
+
+    @Override
+    public ResultVO pauseQueue(JoinSonActivityForm joinSonActivityForm, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            log.info("参数注意必填项！");
+            return ResultVOUtil.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+        }
+        if (!checkOpenId(joinSonActivityForm.getActivityId(), joinSonActivityForm.getOpenId())) {
+            return ResultVOUtil.error(ResultEnum.PERMISSION_DENNY);
+        }
+        /**
+         * is_true 0为关闭 1 为正常 2为暂停
+         */
+        Operation operation = operationMapper.selectByPrimaryKey(joinSonActivityForm.getSonActivityId());
+        operation.setIsTrue((byte) 2);
+        operationMapper.updateByPrimaryKey(operation);
+        return ResultVOUtil.success();
+    }
+
+    @Override
+    public ResultVO restartQueue(JoinSonActivityForm joinSonActivityForm, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            log.info("参数注意必填项！");
+            return ResultVOUtil.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+        }
+        if (!checkOpenId(joinSonActivityForm.getActivityId(), joinSonActivityForm.getOpenId())) {
+            return ResultVOUtil.error(ResultEnum.PERMISSION_DENNY);
+        }
+        Operation operation = operationMapper.selectByPrimaryKey(joinSonActivityForm.getSonActivityId());
+        operation.setIsTrue((byte) 1);
         operationMapper.updateByPrimaryKey(operation);
         return ResultVOUtil.success();
     }
 
     /**
      * 获取AccessToken
+     *
      * @return
      */
     public String getAccessToken() {
@@ -357,7 +428,6 @@ public class ActivityServiceImpl implements ActivityService {
         return accessTokenModel.getAccess_token();
         //POST https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=ACCESS_TOKEN
     }
-
 
 
 }

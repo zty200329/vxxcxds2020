@@ -15,6 +15,7 @@ public enum ResultEnum {
     USER_NOT_LOGIN(1,"用户登录信息过期"),
     IMAGE_IS_NULL(2,"图片为空"),
     HAS_IN_QUEUE(3,"在排队队列中"),
+    QUEUE_IS_CLOSED(4,"排队已关闭或暂停"),
 
 
     AUTHENTICATION_ERROR(401, "用户认证失败,请重新登录"),

@@ -61,7 +61,7 @@ public class ActivityController {
 
     @PostMapping("/selectByDistance")
     @ApiOperation("获取店家列表")
-    public ResultVO selectByDistance(ActivityDistanceForm activityDistanceForm,BindingResult bindingResult){
+    public ResultVO selectByDistance(@Valid ActivityDistanceForm activityDistanceForm,BindingResult bindingResult){
         return activityService.selectByDistance(activityDistanceForm,bindingResult);
     }
 
@@ -77,7 +77,23 @@ public class ActivityController {
         return activityService.getOwnActivity(openId);
     }
 
-    public ResultVO stopOneQueueing(JoinSonActivityForm joinSonActivityForm,BindingResult bindingResult){
-        return null;
+    @PostMapping("/stopOneQueueing")
+    @ApiOperation("关闭某条排队 会一次性叫完号")
+    public ResultVO stopOneQueueing(@Valid JoinSonActivityForm joinSonActivityForm,BindingResult bindingResult){
+        return activityService.stopOneQueueing(joinSonActivityForm,bindingResult);
     }
+
+    @PostMapping("/pauseQueue")
+    @ApiOperation("暂停一条排队,可以继续叫号,但是不能新加入")
+    public ResultVO pauseQueue(@Valid JoinSonActivityForm joinSonActivityForm,BindingResult bindingResult){
+        return activityService.pauseQueue(joinSonActivityForm,bindingResult);
+    }
+
+    @PostMapping("/restartQueue")
+    @ApiOperation("重新开启排队")
+    public ResultVO restartQueue(@Valid JoinSonActivityForm joinSonActivityForm ,BindingResult bindingResult){
+        return activityService.restartQueue(joinSonActivityForm,bindingResult);
+    }
+
+    public ResultVO viewMyQueue()
 }

@@ -55,4 +55,5 @@ public interface ActivityService {
 
     ResultVO getOwnActivity(String openId);
 
+    ResultVO stopOneQueueing(JoinSonActivityForm joinSonActivityForm,BindingResult bindingResult);
 }

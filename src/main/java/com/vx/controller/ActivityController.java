@@ -76,4 +76,8 @@ public class ActivityController {
     public ResultVO getOwnActivity(String openId){
         return activityService.getOwnActivity(openId);
     }
+
+    public ResultVO stopOneQueueing(JoinSonActivityForm joinSonActivityForm,BindingResult bindingResult){
+        return null;
+    }
 }

@@ -319,6 +319,24 @@ public class ActivityServiceImpl implements ActivityService {
         return ResultVOUtil.success(activityMapper.selectByOpenid(openId));
     }
 
+    /**
+     * 将某一条排队关闭 删除redis排队信息
+     * @param joinSonActivityForm
+     * @param bindingResult
+     * @return
+     */
+    @Override
+    public ResultVO stopOneQueueing(JoinSonActivityForm joinSonActivityForm, BindingResult bindingResult) {
+        Operation operation = operationMapper.selectByPrimaryKey(joinSonActivityForm.getSonActivityId());
+        operation.setIsTrue((byte) 0);
+        operationMapper.updateByPrimaryKey(operation);
+        return ResultVOUtil.success();
+    }
+
+    /**
+     * 获取AccessToken
+     * @return
+     */
     public String getAccessToken() {
         if (redisUtil.get("access_token") != null) {
             return (String) redisUtil.get("access_token");

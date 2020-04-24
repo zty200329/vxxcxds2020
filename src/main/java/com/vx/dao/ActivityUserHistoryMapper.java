@@ -22,4 +22,7 @@ public interface ActivityUserHistoryMapper {
                                        @Param("isOk") Boolean isOk);
     ActivityUserHistory selectByOpenId2(@Param("userId")Long id,
                                        @Param("activityId") Long activityId, @Param("sonActivityId") Long sonActivityId);
+
+    List<ActivityUserHistory> selectByOpenid3(Long id);
+
 }

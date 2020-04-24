@@ -66,5 +66,12 @@
     order by 'time' desc
     limit 1
    </select>
+    <select id="selectByOpenid3" resultMap="BaseResultMap">
+    select id, son_activity_id, activity_id, user_id, activity_name, `name`, address,
+    `time`, is_ok
+    from activity_user_history
+    where user_id = #{userId,jdbcType=BIGINT} AND
+      is_ok = false
+  </select>
 
 </mapper>

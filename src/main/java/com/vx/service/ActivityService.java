@@ -3,6 +3,7 @@ package com.vx.service;
 import com.vx.form.*;
 import com.vx.vo.ResultVO;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
@@ -78,4 +79,11 @@ public interface ActivityService {
      * @return
      */
     ResultVO restartQueue(JoinSonActivityForm joinSonActivityForm ,BindingResult bindingResult);
+
+    /**
+     * 获取正在排队的及前面有多少人
+     * @param openid
+     * @return
+     */
+    ResultVO viewMyJoinQueue(String openid);
 }

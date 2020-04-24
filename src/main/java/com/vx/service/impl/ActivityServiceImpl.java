@@ -11,10 +11,7 @@ import com.vx.form.*;
 import com.vx.model.*;
 import com.vx.service.ActivityService;
 import com.vx.utils.*;
-import com.vx.vo.ActivityVO;
-import com.vx.vo.ResultVO;
-import com.vx.vo.SubscribeMessageVO;
-import com.vx.vo.WxMssVO;
+import com.vx.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
@@ -23,14 +20,11 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
-import sun.net.www.http.Hurryable;
 
-import javax.xml.ws.handler.LogicalHandler;
 import java.util.*;
 
 /**
@@ -111,7 +105,7 @@ public class ActivityServiceImpl implements ActivityService {
     public ResultVO joinSonActivity(JoinSonActivityForm joinSonActivityForm, BindingResult bindingresult) {
         if (bindingresult.hasErrors()) {
             log.info("参数注意必填项！");
-            return ResultVOUtil.error(bindingresult.getFieldError().getDefaultMessage());
+            return ResultVOUtil.error(Objects.requireNonNull(bindingresult.getFieldError()).getDefaultMessage());
         }
         //登录校验
         if (redisUtil.get(joinSonActivityForm.getOpenId()) == null) {
@@ -345,8 +339,9 @@ public class ActivityServiceImpl implements ActivityService {
             log.info("参数注意必填项！");
             return ResultVOUtil.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
         }
-        if (!checkOpenId(joinSonActivityForm.getActivityId(), joinSonActivityForm.getOpenId()))
+        if (checkOpenId(joinSonActivityForm.getActivityId(), joinSonActivityForm.getOpenId())) {
             return ResultVOUtil.error(ResultEnum.PERMISSION_DENNY);
+        }
         Operation operation = operationMapper.selectByPrimaryKey(joinSonActivityForm.getSonActivityId());
         operation.setIsTrue((byte) 0);
         operationMapper.updateByPrimaryKey(operation);
@@ -376,7 +371,7 @@ public class ActivityServiceImpl implements ActivityService {
             log.info("参数注意必填项！");
             return ResultVOUtil.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
         }
-        if (!checkOpenId(joinSonActivityForm.getActivityId(), joinSonActivityForm.getOpenId())) {
+        if (checkOpenId(joinSonActivityForm.getActivityId(), joinSonActivityForm.getOpenId())) {
             return ResultVOUtil.error(ResultEnum.PERMISSION_DENNY);
         }
         /**
@@ -394,13 +389,42 @@ public class ActivityServiceImpl implements ActivityService {
             log.info("参数注意必填项！");
             return ResultVOUtil.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
         }
-        if (!checkOpenId(joinSonActivityForm.getActivityId(), joinSonActivityForm.getOpenId())) {
+        if (checkOpenId(joinSonActivityForm.getActivityId(), joinSonActivityForm.getOpenId())) {
             return ResultVOUtil.error(ResultEnum.PERMISSION_DENNY);
         }
         Operation operation = operationMapper.selectByPrimaryKey(joinSonActivityForm.getSonActivityId());
         operation.setIsTrue((byte) 1);
         operationMapper.updateByPrimaryKey(operation);
         return ResultVOUtil.success();
+    }
+
+    /**
+     * 查看排名
+     * @param openid
+     * @return
+     */
+    @Override
+    public ResultVO viewMyJoinQueue(String openid) {
+        List<viewMyJoinQueueVO> myJoinQueueVOS = new LinkedList<>();
+        List<ActivityUserHistory> history = activityUserHistoryMapper.selectByOpenid3(getUserIdByOpenId(openid));
+        log.info("长度:"+history.size());
+        for (ActivityUserHistory activityUserHistory : history) {
+            viewMyJoinQueueVO myJoinQueueVO = new viewMyJoinQueueVO();
+            String str = activityUserHistory.getActivityId()+"+"+activityUserHistory.getSonActivityId();
+            log.info(activityUserHistory.toString());
+            Activity activity = activityMapper.selectByPrimaryKey(activityUserHistory.getActivityId());
+            log.info(activity.toString());
+            Operation operation = operationMapper.selectByPrimaryKey(activityUserHistory.getSonActivityId());
+            log.info(operation.toString());
+            myJoinQueueVO.setActivityName(activity.getActivityName());
+            myJoinQueueVO.setSonActivityName(operation.getName());
+            myJoinQueueVO.setRank(redisUtil.zRank(str,openid)+1);
+            myJoinQueueVO.setAllPeople(redisUtil.zSize(str));
+            myJoinQueueVO.setAddress(activity.getAddress());
+            myJoinQueueVO.setDescription(operation.getDescription());
+            myJoinQueueVOS.add(myJoinQueueVO);
+        }
+        return ResultVOUtil.success(myJoinQueueVOS);
     }
 
     /**

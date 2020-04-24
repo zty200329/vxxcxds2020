@@ -72,7 +72,7 @@ public class ActivityController {
     }
 
     @GetMapping("/getOwnActivity")
-    @ApiOperation("获取自己的活动")
+    @ApiOperation("发起者获取自己的活动")
     public ResultVO getOwnActivity(String openId){
         return activityService.getOwnActivity(openId);
     }
@@ -95,5 +95,9 @@ public class ActivityController {
         return activityService.restartQueue(joinSonActivityForm,bindingResult);
     }
 
-    public ResultVO viewMyQueue()
+    @PostMapping("/viewMyJoinQueue")
+    @ApiOperation("查看自己正在排队的信息")
+    public ResultVO viewMyJoinQueue(@RequestParam("id") String openid){
+        return activityService.viewMyJoinQueue(openid);
+    }
 }

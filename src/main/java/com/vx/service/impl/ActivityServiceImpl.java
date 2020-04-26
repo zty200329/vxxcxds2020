@@ -171,6 +171,9 @@ public class ActivityServiceImpl implements ActivityService {
             log.info("参数注意必填项！");
             return ResultVOUtil.error(bindingResult.getFieldError().getDefaultMessage());
         }
+        if (!checkOpenId(callNumberForm.getActivityId(), callNumberForm.getOpenId())) {
+            return ResultVOUtil.error(ResultEnum.PERMISSION_DENNY);
+        }
         Operation operation = operationMapper.selectByPrimaryKey(callNumberForm.getSonActivityId());
 
         if (operation.getIsTrue() != 1) {
@@ -315,7 +318,15 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     public ResultVO selectByActivityId(Long id) {
         List<OperationDTO> operationDTOS = operationMapper.selectByActivityId(id);
-        return ResultVOUtil.success(operationDTOS);
+        List<OperationVO> operationVOS = new LinkedList<>();
+        for (OperationDTO operationDTO : operationDTOS) {
+            String key = operationDTO.getActivityId()+"+"+operationDTO.getId();
+            OperationVO operationVO = new OperationVO();
+            BeanUtils.copyProperties(operationDTO,operationVO);
+            operationVO.setAllPeople(redisUtil.zSize(key));
+            operationVOS.add(operationVO);
+        }
+        return ResultVOUtil.success(operationVOS);
     }
 
     @Override
@@ -339,7 +350,7 @@ public class ActivityServiceImpl implements ActivityService {
             log.info("参数注意必填项！");
             return ResultVOUtil.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
         }
-        if (checkOpenId(joinSonActivityForm.getActivityId(), joinSonActivityForm.getOpenId())) {
+        if (!checkOpenId(joinSonActivityForm.getActivityId(), joinSonActivityForm.getOpenId())) {
             return ResultVOUtil.error(ResultEnum.PERMISSION_DENNY);
         }
         Operation operation = operationMapper.selectByPrimaryKey(joinSonActivityForm.getSonActivityId());
@@ -371,7 +382,7 @@ public class ActivityServiceImpl implements ActivityService {
             log.info("参数注意必填项！");
             return ResultVOUtil.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
         }
-        if (checkOpenId(joinSonActivityForm.getActivityId(), joinSonActivityForm.getOpenId())) {
+        if (!checkOpenId(joinSonActivityForm.getActivityId(), joinSonActivityForm.getOpenId())) {
             return ResultVOUtil.error(ResultEnum.PERMISSION_DENNY);
         }
         /**
@@ -389,7 +400,7 @@ public class ActivityServiceImpl implements ActivityService {
             log.info("参数注意必填项！");
             return ResultVOUtil.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
         }
-        if (checkOpenId(joinSonActivityForm.getActivityId(), joinSonActivityForm.getOpenId())) {
+        if (!checkOpenId(joinSonActivityForm.getActivityId(), joinSonActivityForm.getOpenId())) {
             return ResultVOUtil.error(ResultEnum.PERMISSION_DENNY);
         }
         Operation operation = operationMapper.selectByPrimaryKey(joinSonActivityForm.getSonActivityId());

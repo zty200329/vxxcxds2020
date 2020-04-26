@@ -66,7 +66,7 @@ public class ActivityController {
     }
 
     @PostMapping("/getSonActivityById")
-    @ApiOperation("获取主体活动下的子排队")
+    @ApiOperation("获取主体活动下的子排队  0--关闭 1--正常 2--暂停")
     public ResultVO selectSonActivity(@RequestParam("id") Long id){
         return activityService.selectByActivityId(id);
     }

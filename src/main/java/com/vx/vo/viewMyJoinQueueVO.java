@@ -2,6 +2,7 @@ package com.vx.vo;
 
 import lombok.Data;
 
+
 /**
  * @author zty
  * @date 2020/4/24 下午8:29
@@ -9,7 +10,9 @@ import lombok.Data;
  */
 @Data
 public class viewMyJoinQueueVO {
+    private Long activityId;
 
+    private Long sonActivityId;
 
     private String activityName;
 

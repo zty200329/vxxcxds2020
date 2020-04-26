@@ -3,6 +3,7 @@ package com.vx.controller;
 import com.vx.form.CodeForm;
 import com.vx.service.ActivityService;
 import com.vx.service.AnonService;
+import com.vx.utils.RedisUtil;
 import com.vx.vo.ResultVO;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,8 @@ public class VxLoginController {
     private RabbitTemplate rabbitTemplate;
     @Autowired
     private ActivityService activityService;
+    @Autowired
+    private RedisUtil redisUtil;
 
     @PostMapping("/vxLogin")
     public ResultVO vxLogin(@Validated CodeForm code, BindingResult bindingResult){
@@ -43,7 +46,7 @@ public class VxLoginController {
 
     @PostMapping("/test")
     public void test(){
-
+        log.info(String.valueOf(redisUtil.zSize("3+4")));
     }
 
 }

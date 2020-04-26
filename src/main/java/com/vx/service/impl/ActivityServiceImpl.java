@@ -199,7 +199,7 @@ public class ActivityServiceImpl implements ActivityService {
             redisUtil.zRemove(setName, peopleSet);
             log.info("移除： " + peopleSet);
         }
-        return ResultVOUtil.success();
+        return ResultVOUtil.success(redisUtil.zSize(setName));
     }
 
     /**
@@ -284,20 +284,26 @@ public class ActivityServiceImpl implements ActivityService {
             log.info("参数注意必填项！");
             return ResultVOUtil.error(bindingResult.getFieldError().getDefaultMessage());
         }
-        //先计算查询点的经纬度范围
-        double r = 6371;//地球半径千米
-        double dis = activityDistanceForm.getDistance();//0.5千米距离
-        log.info(String.valueOf(dis));
-        double dlng = 2 * Math.asin(Math.sin(dis / (2 * r)) / Math.cos(activityDistanceForm.getLatitude() * Math.PI / 180));
-        dlng = dlng * 180 / Math.PI;//角度转为弧度
-        double dlat = dis / r;
-        dlat = dlat * 180 / Math.PI;
-        double minlat = activityDistanceForm.getLatitude() - dlat;
-        double maxlat = activityDistanceForm.getLatitude() + dlat;
-        double minlng = activityDistanceForm.getLongitude() - dlng;
-        double maxlng = activityDistanceForm.getLongitude() + dlng;
-        List<ActivityDTO> activityDTOS = activityMapper.selectAsDistance(minlat, maxlat, minlng, maxlng, dis);
         List<ActivityVO> activityVOS = new LinkedList<>();
+        List<ActivityDTO> activityDTOS = new LinkedList<>();
+        if (activityDistanceForm.getDistance() == null){
+            activityDTOS = activityMapper.selectAsDistance1();
+
+        }else {
+            //先计算查询点的经纬度范围
+            double r = 6371;//地球半径千米
+            double dis = activityDistanceForm.getDistance();//0.5千米距离
+            log.info(String.valueOf(dis));
+            double dlng = 2 * Math.asin(Math.sin(dis / (2 * r)) / Math.cos(activityDistanceForm.getLatitude() * Math.PI / 180));
+            dlng = dlng * 180 / Math.PI;//角度转为弧度
+            double dlat = dis / r;
+            dlat = dlat * 180 / Math.PI;
+            double minlat = activityDistanceForm.getLatitude() - dlat;
+            double maxlat = activityDistanceForm.getLatitude() + dlat;
+            double minlng = activityDistanceForm.getLongitude() - dlng;
+            double maxlng = activityDistanceForm.getLongitude() + dlng;
+            activityDTOS = activityMapper.selectAsDistance(minlat, maxlat, minlng, maxlng, dis);
+        }
         for (ActivityDTO activityDTO : activityDTOS) {
             ActivityVO activityVO = new ActivityVO();
             BeanUtils.copyProperties(activityDTO, activityVO);
@@ -305,6 +311,13 @@ public class ActivityServiceImpl implements ActivityService {
             activityVO.setDistance(distance);
             activityVOS.add(activityVO);
         }
+
+        Collections.sort(activityVOS, new Comparator<ActivityVO>() {
+            @Override
+            public int compare(ActivityVO o1, ActivityVO o2) {
+                return o1.getDistance().compareTo(o2.getDistance());
+            }
+        });
         return ResultVOUtil.success(activityVOS);
     }
 
@@ -427,6 +440,8 @@ public class ActivityServiceImpl implements ActivityService {
             log.info(activity.toString());
             Operation operation = operationMapper.selectByPrimaryKey(activityUserHistory.getSonActivityId());
             log.info(operation.toString());
+            myJoinQueueVO.setActivityId(activity.getId());
+            myJoinQueueVO.setSonActivityId(operation.getId());
             myJoinQueueVO.setActivityName(activity.getActivityName());
             myJoinQueueVO.setSonActivityName(operation.getName());
             myJoinQueueVO.setRank(redisUtil.zRank(str,openid)+1);
@@ -437,6 +452,112 @@ public class ActivityServiceImpl implements ActivityService {
         }
         return ResultVOUtil.success(myJoinQueueVOS);
     }
+
+    /**
+     * 用户退出一条排队
+     * @param quitQueueForm
+     * @param bindingResult
+     * @return
+     */
+    @Override
+    public ResultVO QuitQueue(QuitQueueForm quitQueueForm, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            log.info("参数注意必填项！");
+            return ResultVOUtil.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+        }
+        String key = quitQueueForm.getActivityId()+"+"+quitQueueForm.getSonActivityId();
+        redisUtil.zRemove(key,quitQueueForm.getOpenId());
+        ActivityUserHistory history = activityUserHistoryMapper.selectByOpenId(getUserIdByOpenId(quitQueueForm.getOpenId()), quitQueueForm.getActivityId(),quitQueueForm.getSonActivityId(),false);
+        activityUserHistoryMapper.deleteByPrimaryKey(history.getId());
+        return ResultVOUtil.success();
+    }
+
+    @Override
+    public ResultVO inquireNum(InquireNumForm inquireNumForm, BindingResult bindingResult) {
+        String key = inquireNumForm.getActivityId()+"+"+inquireNumForm.getSonActivityId();
+        Long allPeople = redisUtil.zSize(key);
+        return ResultVOUtil.success(allPeople);
+    }
+
+    @Override
+    public ResultVO findStore(FindStoreForm findStoreForm,BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            log.info("参数注意必填项！");
+            return ResultVOUtil.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+        }
+        double r = 6371;//地球半径千米
+        List<ActivityDTO> activityDTOS = activityMapper.findStore("%"+findStoreForm.getActivityName()+"%");
+        List<ActivityVO> activityVOS = new LinkedList<>();
+        for (ActivityDTO activityDTO : activityDTOS) {
+            ActivityVO activityVO = new ActivityVO();
+            BeanUtils.copyProperties(activityDTO, activityVO);
+            double distance = LocationUtils.getDistance(findStoreForm.getLatitude(), findStoreForm.getLongitude(), activityDTO.getLatitude(), activityDTO.getLongitude());
+            activityVO.setDistance(distance);
+            activityVOS.add(activityVO);
+        }
+        Collections.sort(activityVOS, new Comparator<ActivityVO>() {
+            @Override
+            public int compare(ActivityVO o1, ActivityVO o2) {
+                return o1.getDistance().compareTo(o2.getDistance());
+            }
+        });
+        return ResultVOUtil.success(activityVOS);
+    }
+
+    /**
+     * 删除
+     * @param deleteActivityForm
+     * @param bindingResult
+     * @return
+     */
+    @Override
+    public ResultVO deleteActivity(DeleteActivityForm deleteActivityForm,BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            log.info("参数注意必填项！");
+            return ResultVOUtil.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+        }
+        if (!checkOpenId(deleteActivityForm.getActivityId(), deleteActivityForm.getOpenId())) {
+            return ResultVOUtil.error(ResultEnum.PERMISSION_DENNY);
+        }
+
+        Activity activity = activityMapper.selectByPrimaryKey(deleteActivityForm.getActivityId());
+        List<Operation> operationList = operationMapper.selectByActivityId2(activity.getId());
+        for (Operation operation : operationList) {
+            String key = operation.getActivityId()+"+"+operation.getId();
+            log.info(operation.toString());
+            if(redisUtil.zSize(key) != 0){
+                return ResultVOUtil.error(ResultEnum.THERE_ARE_QUEUES_NOT_CLOSED);
+            }
+        }
+        for (Operation operation : operationList) {
+            operation.setIsTrue((byte) 0);
+            operationMapper.updateByPrimaryKey(operation);
+        }
+        activity.setIsTrue((byte) 0);
+        activityMapper.updateByPrimaryKey(activity);
+        return ResultVOUtil.success();
+    }
+
+    @Override
+    public ResultVO deleteQueue(DeleteQueueForm deleteQueueForm, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            log.info("参数注意必填项！");
+            return ResultVOUtil.error(Objects.requireNonNull(bindingResult.getFieldError()).getDefaultMessage());
+        }
+        Operation operation = operationMapper.selectByPrimaryKey(deleteQueueForm.getSonActivityId());
+        Activity activity = activityMapper.selectByPrimaryKey(operation.getActivityId());
+        if (!checkOpenId(operation.getActivityId(), activity.getOpenid())){
+            return ResultVOUtil.error(ResultEnum.PERMISSION_DENNY);
+        }
+        String key = operation.getActivityId()+"+"+operation.getId();
+        if(redisUtil.zSize(key) != 0){
+            return ResultVOUtil.error(ResultEnum.THERE_ARE_QUEUES_NOT_CLOSED);
+        }
+        operation.setIsTrue((byte) 0);
+        operationMapper.updateByPrimaryKey(operation);
+        return ResultVOUtil.success();
+    }
+
 
     /**
      * 获取AccessToken

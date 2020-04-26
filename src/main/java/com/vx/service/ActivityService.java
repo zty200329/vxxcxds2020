@@ -86,4 +86,41 @@ public interface ActivityService {
      * @return
      */
     ResultVO viewMyJoinQueue(String openid);
+
+    /**
+     * 用户退出一条排队
+     * @param quitQueueForm
+     * @param bindingResult
+     * @return
+     */
+    ResultVO QuitQueue(QuitQueueForm quitQueueForm,BindingResult bindingResult);
+
+    /**
+     * 查询某条排队多少人
+     * @param inquireNumForm
+     * @param bindingResult
+     * @return
+     */
+    ResultVO inquireNum(InquireNumForm inquireNumForm,BindingResult bindingResult);
+
+    /**
+     * 模糊查询
+     * @param findStoreForm
+     * @return
+     */
+    ResultVO findStore(FindStoreForm findStoreForm,BindingResult bindingResult);
+
+    /**
+     * 删除一个活动,改变状态
+     * @return
+     */
+    ResultVO deleteActivity(DeleteActivityForm deleteActivityForm,BindingResult bindingResult);
+
+    /**
+     * 删除一个排队
+     * @param deleteQueueForm
+     * @param bindingResult
+     * @return
+     */
+    ResultVO deleteQueue(DeleteQueueForm deleteQueueForm ,BindingResult bindingResult);
 }

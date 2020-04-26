@@ -1,5 +1,6 @@
 package com.vx.controller;
 
+import com.sun.org.apache.regexp.internal.RE;
 import com.vx.form.*;
 import com.vx.service.ActivityService;
 import com.vx.vo.ResultVO;
@@ -97,7 +98,36 @@ public class ActivityController {
 
     @PostMapping("/viewMyJoinQueue")
     @ApiOperation("查看自己正在排队的信息")
-    public ResultVO viewMyJoinQueue(@RequestParam("id") String openid){
+    public ResultVO viewMyJoinQueue(@RequestParam("openId") String openid){
         return activityService.viewMyJoinQueue(openid);
+    }
+
+    @PostMapping("/quitQueue")
+    @ApiOperation("用户退出某一条排队")
+    public ResultVO quitQueue(@Valid QuitQueueForm quitQueueForm,BindingResult bindingResult){
+        return activityService.QuitQueue(quitQueueForm,bindingResult);
+    }
+    @PostMapping("/inquireNum")
+    @ApiOperation("查询某条排队多少人")
+    public ResultVO inquireNum(@Valid InquireNumForm inquireNumForm,BindingResult bindingResult){
+        return activityService.inquireNum(inquireNumForm,bindingResult);
+    }
+
+    @PostMapping("/findStore")
+    @ApiOperation("模糊查询")
+    public ResultVO findStore(FindStoreForm findStoreForm , BindingResult bindingResult){
+        return activityService.findStore(findStoreForm,bindingResult);
+    }
+
+    @PostMapping("/deleteActivity")
+    @ApiOperation("删除一个活动")
+    public ResultVO deleteActivity(@Valid DeleteActivityForm deleteActivityForm,BindingResult bindingResult){
+        return activityService.deleteActivity(deleteActivityForm,bindingResult);
+    }
+
+    @PostMapping("/deleteQueue")
+    @ApiOperation("删除一个排队")
+    public ResultVO deleteQueue(@Valid DeleteQueueForm deleteQueueForm ,BindingResult bindingResult){
+        return activityService.deleteQueue(deleteQueueForm,bindingResult);
     }
 }

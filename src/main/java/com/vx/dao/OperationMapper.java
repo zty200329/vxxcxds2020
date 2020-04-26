@@ -18,4 +18,6 @@ public interface OperationMapper {
     int updateByPrimaryKey(Operation record);
 
     List<OperationDTO> selectByActivityId(Long id);
+
+    List<Operation> selectByActivityId2(Long id);
 }

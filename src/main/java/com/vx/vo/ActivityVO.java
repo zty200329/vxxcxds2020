@@ -2,13 +2,15 @@ package com.vx.vo;
 
 import lombok.Data;
 
+import java.util.Comparator;
+
 /**
  * @author zty
  * @date 2020/4/21 下午5:40
  * @description: 返回店家
  */
 @Data
-public class ActivityVO {
+public class ActivityVO  {
     private Long id;
 
     private String activityName;
@@ -30,4 +32,5 @@ public class ActivityVO {
     private String pictureUrl;
 
     private Double distance;
+
 }

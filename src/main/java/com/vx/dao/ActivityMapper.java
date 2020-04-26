@@ -21,5 +21,9 @@ public interface ActivityMapper {
     List<ActivityDTO> selectAsDistance(@Param("minlat")double minlat,@Param("maxlat")double maxlat,
                                        @Param("minlng")double minlng,@Param("maxlng")double maxlng,
                                        @Param("dis") double dis);
+    List<ActivityDTO> selectAsDistance1();
+
     List<ActivityDTO> selectByOpenid(@Param("openid") String openId);
+
+    List<ActivityDTO> findStore(@Param("name") String name);
 }

@@ -16,6 +16,7 @@ public enum ResultEnum {
     IMAGE_IS_NULL(2,"图片为空"),
     HAS_IN_QUEUE(3,"在排队队列中"),
     QUEUE_IS_CLOSED(4,"排队已关闭或暂停"),
+    THERE_ARE_QUEUES_NOT_CLOSED(5,"有排队任有人在排队"),
 
 
     AUTHENTICATION_ERROR(401, "用户认证失败,请重新登录"),

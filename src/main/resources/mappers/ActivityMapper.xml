@@ -76,7 +76,24 @@
     picture_url as pictureUrl
     from activity_main
     <if test="dis != 0.0">
-    where latitude &gt; #{minlat} and latitude &lt; #{maxlat} and longitude &gt; #{minlng} and longitude &lt; #{maxlng}
+    where latitude &gt; #{minlat} and latitude &lt; #{maxlat} and longitude &gt; #{minlng} and longitude &lt; #{maxlng} and is_true = 1
     </if>
   </select>
+  <select id="selectAsDistance1" resultType="com.vx.dto.ActivityDTO" >
+    select id as id, activity_name as activityName, phone_num as phoneNum, activity_type as activityType, `name` as name,
+    city as city, address as address,
+    latitude as latitude, longitude as longitude, activity_time as activityTime, description as description,
+    picture_url as pictureUrl
+    from activity_main
+    where is_true = 1
+  </select>
+  <select id="findStore" resultType="com.vx.dto.ActivityDTO" >
+    select id as id, activity_name as activityName, phone_num as phoneNum, activity_type as activityType, `name` as name,
+    city as city, address as address,
+    latitude as latitude, longitude as longitude, activity_time as activityTime, description as description,
+    picture_url as pictureUrl
+    from activity_main
+    where activity_name LIKE  #{name}
+  </select>
+
 </mapper>

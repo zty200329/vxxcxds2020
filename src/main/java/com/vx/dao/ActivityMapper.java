@@ -25,5 +25,7 @@ public interface ActivityMapper {
 
     List<ActivityDTO>  selectByOpenid(@Param("openid") String openId);
 
+    List<ActivityDTO>  selectByOpenid2(@Param("openid") String openId);
+
     List<ActivityDTO> findStore(@Param("name") String name);
 }

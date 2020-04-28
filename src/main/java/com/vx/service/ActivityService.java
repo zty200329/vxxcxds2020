@@ -120,7 +120,7 @@ public interface ActivityService {
      * 删除一个排队
      * @param deleteQueueForm
      * @param bindingResult
-     * @return
+     * @returndais
      */
     ResultVO deleteQueue(DeleteQueueForm deleteQueueForm ,BindingResult bindingResult);
 

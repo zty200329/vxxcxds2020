@@ -560,14 +560,23 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     public ResultVO viewHistory(String openId) {
+        String viewHistory=openId+"viewHistory";
+        if(redisUtil.get(viewHistory)!=null){
+            log.info("redis查询");
+            return (ResultVO) redisUtil.get(viewHistory);
+        }
         Long userId = getUserIdByOpenId(openId);
         List<ActivityUserHistory> activityUserHistory = activityUserHistoryMapper.selectByUserId(userId);
         List<viewMyJoinHistory> viewMyJoinHistories = new LinkedList<>();
         for (ActivityUserHistory history : activityUserHistory) {
             viewMyJoinHistory viewMyJoinHistory = new viewMyJoinHistory();
             BeanUtils.copyProperties(history,viewMyJoinHistory);
+            viewMyJoinHistory.setType(typeMapper.selectByPrimaryKey(
+                    activityMapper.selectByPrimaryKey(history.getActivityId()).getActivityType()).getType());
             viewMyJoinHistories.add(viewMyJoinHistory);
         }
+        log.info("mysql查询");
+        redisUtil.set(viewHistory,ResultVOUtil.success(viewMyJoinHistories),600);
         return ResultVOUtil.success(viewMyJoinHistories);
     }
 
@@ -579,7 +588,12 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     public ResultVO getActivityHistory(String openId) {
-        List<ActivityDTO> activityDTO = activityMapper.selectByOpenid(openId);
+        String viewHistory=openId+"getActivityHistory";
+        if(redisUtil.get(viewHistory)!=null){
+            log.info("redis查询");
+            return (ResultVO) redisUtil.get(viewHistory);
+        }
+        List<ActivityDTO> activityDTO = activityMapper.selectByOpenid2(openId);
         List<ActivityHistoryVO> activityHistoryVOS = new LinkedList<>();
         for (ActivityDTO dto : activityDTO) {
             ActivityHistoryVO activityHistoryVO = new ActivityHistoryVO();
@@ -587,7 +601,8 @@ public class ActivityServiceImpl implements ActivityService {
             activityHistoryVO.setActivityType(typeMapper.selectByPrimaryKey(dto.getActivityType()).getType());
             activityHistoryVOS.add(activityHistoryVO);
         }
-
+        log.info("mysql查询");
+        redisUtil.set(viewHistory,ResultVOUtil.success(activityHistoryVOS),600);
 
         return ResultVOUtil.success(activityHistoryVOS);
     }

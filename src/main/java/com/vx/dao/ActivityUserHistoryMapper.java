@@ -25,4 +25,5 @@ public interface ActivityUserHistoryMapper {
 
     List<ActivityUserHistory> selectByOpenid3(Long id);
 
+    List<ActivityUserHistory> selectByUserId(Long userId);
 }

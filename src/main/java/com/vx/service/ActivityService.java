@@ -123,4 +123,11 @@ public interface ActivityService {
      * @return
      */
     ResultVO deleteQueue(DeleteQueueForm deleteQueueForm ,BindingResult bindingResult);
+
+    /**
+     * 查看个人历史排队记录
+     * @param openId
+     * @return
+     */
+    ResultVO viewHistory(String openId);
 }

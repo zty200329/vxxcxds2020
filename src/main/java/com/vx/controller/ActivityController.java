@@ -130,4 +130,10 @@ public class ActivityController {
     public ResultVO deleteQueue(@Valid DeleteQueueForm deleteQueueForm ,BindingResult bindingResult){
         return activityService.deleteQueue(deleteQueueForm,bindingResult);
     }
+
+
+    @GetMapping("/view")
+    public ResultVO viewHistory(@RequestParam("openId") String openId){
+
+    }
 }

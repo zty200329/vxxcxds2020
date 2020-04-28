@@ -559,6 +559,18 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
 
+    @Override
+    public ResultVO viewHistory(String openId) {
+        Long userId = getUserIdByOpenId(openId);
+        List<ActivityUserHistory> activityUserHistory = activityUserHistoryMapper.selectByUserId(userId);
+
+        for (ActivityUserHistory history : activityUserHistory) {
+
+        }
+        return null;
+    }
+
+
     /**
      * 获取AccessToken
      *

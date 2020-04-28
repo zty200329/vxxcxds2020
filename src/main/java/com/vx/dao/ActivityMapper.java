@@ -23,7 +23,7 @@ public interface ActivityMapper {
                                        @Param("dis") double dis);
     List<ActivityDTO> selectAsDistance1();
 
-    List<ActivityDTO> selectByOpenid(@Param("openid") String openId);
+    List<ActivityDTO>  selectByOpenid(@Param("openid") String openId);
 
     List<ActivityDTO> findStore(@Param("name") String name);
 }

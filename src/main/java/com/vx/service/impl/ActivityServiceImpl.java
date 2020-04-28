@@ -1,9 +1,6 @@
 package com.vx.service.impl;
 
-import com.vx.dao.ActivityMapper;
-import com.vx.dao.ActivityUserHistoryMapper;
-import com.vx.dao.OperationMapper;
-import com.vx.dao.UserMapper;
+import com.vx.dao.*;
 import com.vx.dto.ActivityDTO;
 import com.vx.dto.OperationDTO;
 import com.vx.enums.ResultEnum;
@@ -47,6 +44,8 @@ public class ActivityServiceImpl implements ActivityService {
     private ActivityMapper activityMapper;
     @Autowired
     private ActivityUserHistoryMapper activityUserHistoryMapper;
+    @Autowired
+    private TypeMapper typeMapper;
     @Autowired
     private RabbitTemplate rabbitTemplate;
 
@@ -563,11 +562,34 @@ public class ActivityServiceImpl implements ActivityService {
     public ResultVO viewHistory(String openId) {
         Long userId = getUserIdByOpenId(openId);
         List<ActivityUserHistory> activityUserHistory = activityUserHistoryMapper.selectByUserId(userId);
-
+        List<viewMyJoinHistory> viewMyJoinHistories = new LinkedList<>();
         for (ActivityUserHistory history : activityUserHistory) {
-
+            viewMyJoinHistory viewMyJoinHistory = new viewMyJoinHistory();
+            BeanUtils.copyProperties(history,viewMyJoinHistory);
+            viewMyJoinHistories.add(viewMyJoinHistory);
         }
-        return null;
+        return ResultVOUtil.success(viewMyJoinHistories);
+    }
+
+    @Override
+    public ResultVO getAllType() {
+        List<Type> types = typeMapper.selectAll();
+        return ResultVOUtil.success(types);
+    }
+
+    @Override
+    public ResultVO getActivityHistory(String openId) {
+        List<ActivityDTO> activityDTO = activityMapper.selectByOpenid(openId);
+        List<ActivityHistoryVO> activityHistoryVOS = new LinkedList<>();
+        for (ActivityDTO dto : activityDTO) {
+            ActivityHistoryVO activityHistoryVO = new ActivityHistoryVO();
+            BeanUtils.copyProperties(dto,activityHistoryVO);
+            activityHistoryVO.setActivityType(typeMapper.selectByPrimaryKey(dto.getActivityType()).getType());
+            activityHistoryVOS.add(activityHistoryVO);
+        }
+
+
+        return ResultVOUtil.success(activityHistoryVOS);
     }
 
 

@@ -130,4 +130,17 @@ public interface ActivityService {
      * @return
      */
     ResultVO viewHistory(String openId);
+
+    /**
+     * 获取所有的类别
+     * @return
+     */
+    ResultVO getAllType();
+
+    /**
+     * 获取自己曾今发起的活动
+     * @param openId
+     * @return
+     */
+    ResultVO getActivityHistory(String openId);
 }

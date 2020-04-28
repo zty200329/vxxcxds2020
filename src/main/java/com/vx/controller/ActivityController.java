@@ -132,8 +132,21 @@ public class ActivityController {
     }
 
 
-    @GetMapping("/view")
+    @GetMapping("/viewHistory")
+    @ApiOperation("查看自己的排队历史")
     public ResultVO viewHistory(@RequestParam("openId") String openId){
+        return activityService.viewHistory(openId);
+    }
 
+    @GetMapping("/getAllType")
+    @ApiOperation("获取所有的类别")
+    public ResultVO getAllType(){
+        return activityService.getAllType();
+    }
+
+    @GetMapping("/getActivityHistory")
+    @ApiOperation("获取自己曾今发起的活动")
+    public ResultVO getActivityHistory(String openId){
+        return activityService.getActivityHistory(openId);
     }
 }

@@ -77,7 +77,7 @@
     select id, son_activity_id, activity_id, user_id, activity_name, `name`, address,
     `time`, is_ok
     from activity_user_history
-    where user_id = #{userId}
+    where user_id = #{userId} and is_ok = 1
   </select>
 
 </mapper>

@@ -17,7 +17,7 @@ import java.io.IOException;
 public class UploadImageUtil {
     public static String uploadFile(MultipartFile file) {
         String imageFilePath = "/home/zty/image/";
-        String imageUrl = "http://zty200329.nat300.top";
+        String imageUrl = "https://ztyztyztylhm.mynatapp.cc/";
         // 获取文件名
         String fileName = file.getOriginalFilename();
         String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);

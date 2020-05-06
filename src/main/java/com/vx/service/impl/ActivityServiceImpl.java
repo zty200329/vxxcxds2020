@@ -283,9 +283,9 @@ public class ActivityServiceImpl implements ActivityService {
             log.info("参数注意必填项！");
             return ResultVOUtil.error(bindingResult.getFieldError().getDefaultMessage());
         }
-        List<ActivityVO> activityVOS = new LinkedList<>();
+        List<ActivityVO3> activityVOS = new LinkedList<>();
         List<ActivityDTO> activityDTOS = new LinkedList<>();
-        if (activityDistanceForm.getDistance() == null){
+        if (activityDistanceForm.getDistance() == 0){
             activityDTOS = activityMapper.selectAsDistance1();
 
         }else {
@@ -304,16 +304,16 @@ public class ActivityServiceImpl implements ActivityService {
             activityDTOS = activityMapper.selectAsDistance(minlat, maxlat, minlng, maxlng, dis);
         }
         for (ActivityDTO activityDTO : activityDTOS) {
-            ActivityVO activityVO = new ActivityVO();
+            ActivityVO3 activityVO = new ActivityVO3();
             BeanUtils.copyProperties(activityDTO, activityVO);
             double distance = LocationUtils.getDistance(activityDistanceForm.getLatitude(), activityDistanceForm.getLongitude(), activityDTO.getLatitude(), activityDTO.getLongitude());
             activityVO.setDistance(distance);
             activityVOS.add(activityVO);
         }
 
-        Collections.sort(activityVOS, new Comparator<ActivityVO>() {
+        Collections.sort(activityVOS, new Comparator<ActivityVO3>() {
             @Override
-            public int compare(ActivityVO o1, ActivityVO o2) {
+            public int compare(ActivityVO3 o1, ActivityVO3 o2) {
                 return o1.getDistance().compareTo(o2.getDistance());
             }
         });
@@ -343,10 +343,19 @@ public class ActivityServiceImpl implements ActivityService {
 
     @Override
     public ResultVO getOwnActivity(String openId) {
-        if (redisUtil.get(openId) == null) {
-            return ResultVOUtil.error(ResultEnum.USER_NOT_LOGIN);
+//        if (redisUtil.get(openId) == null) {
+//            return ResultVOUtil.error(ResultEnum.USER_NOT_LOGIN);
+//        }
+        List<ActivityDTO> activityDTOS = activityMapper.selectByOpenid(openId);
+        List<ActivityVO2> activityVO2s = new LinkedList<>();
+        for (ActivityDTO activityDTO : activityDTOS) {
+            ActivityVO2 activityVO2 = new ActivityVO2();
+            BeanUtils.copyProperties(activityDTO,activityVO2);
+            activityVO2.setActivityType(typeMapper.selectByPrimaryKey(activityDTO.getActivityType()).getType());
+            activityVO2s.add(activityVO2);
         }
-        return ResultVOUtil.success(activityMapper.selectByOpenid(openId));
+
+        return ResultVOUtil.success(activityVO2s);
     }
 
     /**

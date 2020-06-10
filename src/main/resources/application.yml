@@ -17,7 +17,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 123456
-    url: jdbc:mysql://127.0.0.1:3306/vxxcx?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=CONVERT_TO_NULL
+    url: jdbc:mysql://106.15.248.34:3306/vxxcx?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&zeroDateTimeBehavior=CONVERT_TO_NULL
     type: com.alibaba.druid.pool.DruidDataSource
     druid:
       # 初始化大小，最小，最大
@@ -49,8 +49,9 @@ mybatis:
     map-underscore-to-camel-case: true
     use-generated-keys: true
 image:
-  url: http//:127.0.0.1:8080
-  location: /home/zty/image/
+  url: http//:47.115.7.163:8085
+  location: /home/images/
+
 
 server:
   port: 8085

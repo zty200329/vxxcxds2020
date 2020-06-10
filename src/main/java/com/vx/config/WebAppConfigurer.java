@@ -19,7 +19,6 @@ public class WebAppConfigurer extends WebMvcConfigurerAdapter {
      */
     @Value("${image.location}")
     private String folder;
-
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/image/**").addResourceLocations("file:" + folder);

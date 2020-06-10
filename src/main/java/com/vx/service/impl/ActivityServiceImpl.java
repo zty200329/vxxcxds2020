@@ -246,7 +246,7 @@ public class ActivityServiceImpl implements ActivityService {
         SubscribeMessageVO bean = new SubscribeMessageVO();
         bean.setThing4(new SubscribeMessageVO.Thing4(history.getActivityName() + ":" + history.getName()));
         bean.setThing6(new SubscribeMessageVO.Thing6(history.getAddress()));
-        bean.setThing7(new SubscribeMessageVO.Thing7("请到服务处联系工作人员"));
+        bean.setThing7(new SubscribeMessageVO.Thing7("请到服务处联系工作人员!"));
         WxMssVO wxMssVO = new WxMssVO();
         wxMssVO.setTouser(p1);
         wxMssVO.setTemplate_id("ZpQrMu4Y9fx8xv5qOSsaspeFCCA9RKazzCFQlplB1iA");

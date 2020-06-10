@@ -16,7 +16,7 @@ import java.io.IOException;
 @Slf4j
 public class UploadImageUtil {
     public static String uploadFile(MultipartFile file) {
-        String imageFilePath = "/home/zty/image/";
+        String imageFilePath = "/home/images/";
         String imageUrl = "https://ztyztyztylhm.mynatapp.cc/";
         // 获取文件名
         String fileName = file.getOriginalFilename();
@@ -29,6 +29,6 @@ public class UploadImageUtil {
         } catch (IOException e) {
             return null;
         }
-        return imageUrl + "/image/" + newFileName;
+        return imageUrl + "image/" + newFileName;
     }
 }
